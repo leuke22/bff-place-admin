@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@artmizu/nuxt-prometheus',
     '@nuxtjs/google-fonts',
-    '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
     '@sidebase/nuxt-auth'
   ],
@@ -30,6 +29,41 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  auth: {
+    baseURL: 'http://localhost:3001/api/auth',
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/me', method: 'get' }
+      },
+      pages: {
+        login: '/login'
+      },
+      token: {
+        signInResponseTokenPointer: '/access_token',
+        type: 'Bearer',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 60 * 30
+      },
+      session: {
+        dataType: {
+          id: 'number',
+          uuid: 'string',
+          first_name: 'string',
+          last_name: 'string',
+          email: 'string',
+          avatar: 'string',
+        }
+      }
+    },
+    globalAppMiddleware: {
+      isEnabled: true
     }
   }
 })
