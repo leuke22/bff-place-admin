@@ -17,6 +17,21 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  ui: {
+    theme: {
+      colors: [
+        'primary',
+        'secondary',
+        'tertiary',
+        'info',
+        'success',
+        'warning',
+        'error',
+        'neutral'
+      ]
+    }
+  },
+
   routeRules: {
     '/': { prerender: true }
   },
@@ -29,6 +44,12 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  runtimeConfig: {
+    public: {
+      baseURL: 'http://localhost:5000'
     }
   },
 
