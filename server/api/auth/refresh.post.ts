@@ -1,17 +1,11 @@
+// server/api/auth/refresh.post.ts
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event)
+    const cookie = getHeader(event, 'cookie') // browser's cookie header, contains refresh_token
 
-    try {
-        const response = await $fetch('http://localhost:5000/api/auth/refresh', {
-            method: 'POST',
-            body
-        })
+    const response = await $fetch.raw('http://localhost:5000/api/auth/refresh', {
+        method: 'POST',
+        headers: cookie ? { cookie } : {}
+    })
 
-        return response
-    } catch (err: any) {
-        throw createError({
-            statusCode: err.response?.status || 401,
-            statusMessage: err.data?.message || 'Refresh failed'
-        })
-    }
+    return response._data
 })

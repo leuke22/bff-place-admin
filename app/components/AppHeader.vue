@@ -2,6 +2,13 @@
 <template>
   <UHeader>
     <template #left>
+      <UButton
+        icon="i-lucide-panel-left"
+        color="neutral"
+        variant="ghost"
+        aria-label="Toggle sidebar"
+        @click="open = !open"
+      />
       <NuxtLink to="/" class="flex items-center gap-2 font-bold text-lg">
         <UIcon name="i-lucide-shield-check" class="size-6 text-primary" />
         <span>Admin</span>
@@ -16,10 +23,7 @@
             variant="ghost"
             trailing-icon="i-lucide-chevron-down"
           >
-            <UAvatar
-              :alt="data?.first_name"
-              size="xs"
-            />
+            <UAvatar :alt="data?.first_name" size="xs" />
             <span class="hidden sm:inline">{{ data?.first_name }}</span>
           </UButton>
         </UDropdownMenu>
@@ -38,6 +42,7 @@
 
 <script setup lang="ts">
 const { data, status, signOut } = useAuth()
+const open = useSidebar()
 
 const menuItems = computed(() => [
   [
@@ -47,16 +52,8 @@ const menuItems = computed(() => [
     }
   ],
   [
-    {
-      label: 'Profile',
-      icon: 'i-lucide-user',
-      to: '/profile'
-    },
-    {
-      label: 'Settings',
-      icon: 'i-lucide-settings',
-      to: '/settings'
-    }
+    { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+    { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' }
   ],
   [
     {
