@@ -27,7 +27,8 @@ export default defineNuxtConfig({
         'success',
         'warning',
         'error',
-        'neutral'
+        'neutral',
+        'purple'
       ]
     }
   },

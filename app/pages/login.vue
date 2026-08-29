@@ -54,7 +54,7 @@
 
         <div class="flex items-center justify-between">
           <UCheckbox v-model="state.remember" label="Remember me" />
-          <ULink to="/forgot-password" class="text-sm font-medium text-primary)">
+          <ULink to="/forgot-password" class="text-sm font-medium text-primary">
             Forgot password?
           </ULink>
         </div>

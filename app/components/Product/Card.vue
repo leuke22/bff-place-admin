@@ -13,7 +13,7 @@
             <p class="dark:text-gray-400 text-gray-700 text-sm">{{ product.description }}</p>
             <p>{{ formatCurrency(product.price) }}</p>
             <div class="flex flex-row justify-between">
-                <UBadge :label="product.category.name" color="secondary" variant="subtle"/>
+                <UBadge :label="product.category.name" :color="product.category.color" variant="subtle"/>
                 <UDropdownMenu :items="cardItems">
                     <UButton icon="lucide:more-horizontal" variant="ghost"/>
                 </UDropdownMenu>

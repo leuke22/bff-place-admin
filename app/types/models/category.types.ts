@@ -1,3 +1,4 @@
+import type { BadgeProps } from "@nuxt/ui"
 import type { Product } from "./product.types"
 
 export interface Category {
@@ -5,6 +6,8 @@ export interface Category {
   uuid: string
   name: string
   description: string | null
+  color: BadgeProps['color']
+  image: string | null
   is_active: boolean
 
   products: Product[]

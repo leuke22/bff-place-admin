@@ -4,7 +4,8 @@ export default defineAppConfig({
       primary: 'primary',
       secondary: 'secondary',
       tertiary: 'tertiary',
-      neutral: 'zinc'
+      neutral: 'zinc',
+      purple: 'purple'
     }
   }
 })
