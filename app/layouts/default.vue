@@ -10,59 +10,59 @@
                 body: 'py-0'
             }"
         >
-        <template #header>
-            <UDropdownMenu
-                :items="teamsItems"
-                :content="{ align: 'start', collisionPadding: 12 }"
-                :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) min-w-48' }"
-            >
-            <UButton
-                v-bind="selectedTeam"
-                trailing-icon="i-lucide-chevrons-up-down"
-                color="neutral"
-                variant="ghost"
-                square
-                class="w-full data-[state=open]:bg-elevated overflow-hidden"
-                :ui="{ trailingIcon: 'text-dimmed ms-auto' }"
-            />
-            </UDropdownMenu>
-        </template>
+            <template #header>
+                <UDropdownMenu
+                    :items="teamsItems"
+                    :content="{ align: 'start', collisionPadding: 12 }"
+                    :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) min-w-48' }"
+                >
+                <UButton
+                    v-bind="selectedTeam"
+                    trailing-icon="i-lucide-chevrons-up-down"
+                    color="neutral"
+                    variant="ghost"
+                    square
+                    class="w-full data-[state=open]:bg-elevated overflow-hidden"
+                    :ui="{ trailingIcon: 'text-dimmed ms-auto' }"
+                />
+                </UDropdownMenu>
+            </template>
 
-        <template #default="{ state }">
-            <UNavigationMenu
-                :key="state"
-                :items="getItems(state)"
-                orientation="vertical"
-                :ui="{ link: 'p-1.5 overflow-hidden' }"
-            />
-        </template>
+            <template #default="{ state }">
+                <UNavigationMenu
+                    :key="state"
+                    :items="getItems(state)"
+                    orientation="vertical"
+                    :ui="{ link: 'p-1.5 overflow-hidden' }"
+                />
+            </template>
 
-        <template #footer>
-            <UDropdownMenu
-                :items="userItems"
-                :content="{ align: 'center', collisionPadding: 12 }"
-                :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) min-w-48' }"
-            >
-            <UButton
-                trailing-icon="i-lucide-chevrons-up-down"
-                color="neutral"
-                variant="ghost"
-                square
-                class="w-full data-[state=open]:bg-elevated overflow-hidden"
-                :ui="{ trailingIcon: 'text-dimmed ms-auto' }"
-            >
-                <UAvatar :alt="data?.first_name" size="xs" />
-                <span class="truncate">{{ data?.first_name }}</span>
-            </UButton>
-            </UDropdownMenu>
-        </template>
+            <template #footer>
+                <UDropdownMenu
+                    :items="userItems"
+                    :content="{ align: 'center', collisionPadding: 12 }"
+                    :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) min-w-48' }"
+                >
+                <UButton
+                    trailing-icon="i-lucide-chevrons-up-down"
+                    color="neutral"
+                    variant="ghost"
+                    square
+                    class="w-full data-[state=open]:bg-elevated overflow-hidden"
+                    :ui="{ trailingIcon: 'text-dimmed ms-auto' }"
+                >
+                    <UAvatar :alt="data?.first_name" size="xs" />
+                    <span class="truncate">{{ data?.first_name }}</span>
+                </UButton>
+                </UDropdownMenu>
+            </template> 
         </USidebar>
 
         <div class="flex-1 flex flex-col min-w-0">
         <AppHeader />
         <UMain class="flex-1 overflow-y-auto">
             <div class="p-4">
-            <slot />
+                <slot />
             </div>
         </UMain>
         </div>

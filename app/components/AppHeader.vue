@@ -1,6 +1,6 @@
 <!-- app/components/AppHeader.vue -->
 <template>
-  <UHeader>
+  <UHeader :toggle="false">
     <template #left>
       <UButton
         icon="i-lucide-panel-left"

@@ -110,25 +110,25 @@ const errorMessage = ref('')
 const { signIn } = useAuth()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    loading.value = true
-    errorMessage.value = ''
+  loading.value = true
+  errorMessage.value = ''
 
-    try {
-        await signIn(
-            {
-                email: event.data.email,
-                password: event.data.password
-            },
-            {
-                redirect: true,
-                callbackUrl: '/'
-            }
-        )
-    } catch (err) {
-        console.error(err)
-        errorMessage.value = 'Invalid email or password. Please try again.'
-    } finally {
-        loading.value = false
-    }
+  try {
+    await signIn(
+      {
+        email: event.data.email,
+        password: event.data.password
+      },
+      {
+        redirect: true,
+        callbackUrl: '/'
+      }
+    )
+  } catch (err) {
+    console.error(err)
+    errorMessage.value = 'Invalid email or password. Please try again.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>

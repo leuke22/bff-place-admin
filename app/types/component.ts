@@ -5,3 +5,17 @@ export interface ViewTypes {
     label: string
     icon: string
 }
+
+export interface Pagination {
+    page: number
+    limit: number
+    total: number
+}
+
+export interface Filter {
+    search: string
+}
+
+export interface ProductFilter extends Filter {
+    category: number 
+}

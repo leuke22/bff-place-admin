@@ -2,7 +2,7 @@
     <div class="max-w-sm rounded overflow-hidden shadow-lg relative">
         <NuxtImg 
             class="w-full h-48 object-cover" 
-            src="/images/inasal.webp"
+            :src="product.image ?? '/images/inasal.webp'"
         />
         <UBadge 
             class="absolute top-3 right-3"
@@ -14,8 +14,8 @@
             <p>{{ formatCurrency(product.price) }}</p>
             <div class="flex flex-row justify-between">
                 <UBadge :label="product.category.name" color="secondary" variant="subtle"/>
-                <UDropdownMenu>
-                    <UButton icon="lucide:more-horizontal"/>
+                <UDropdownMenu :items="cardItems">
+                    <UButton icon="lucide:more-horizontal" variant="ghost"/>
                 </UDropdownMenu>
             </div>
         </div>
@@ -23,9 +23,22 @@
 </template>
 
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui';
 import type { Product } from '~/types/models/product.types';
 
 const props = defineProps<{
     product: Product
 }>()
+
+const cardItems = ref<DropdownMenuItem[]>([
+    { 
+        label: 'Edit',
+        icon: 'lucide:edit',
+        to: `/products/${props.product.uuid}`
+    },
+    {
+        label: 'Delete',
+        icon: 'lucide:trash'
+    }
+])
 </script>

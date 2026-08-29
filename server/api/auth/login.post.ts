@@ -1,3 +1,4 @@
+// server/api/auth/login.post.ts
 export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
@@ -12,5 +13,8 @@ export default defineEventHandler(async (event) => {
         appendHeader(event, 'set-cookie', setCookie)
     }
 
-    return response._data
+    return {
+        ...(response._data as object),
+        refreshToken: 'managed-via-httponly-cookie' // placeholder only — satisfies nuxt-auth's pointer check
+    }
 })

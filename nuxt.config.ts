@@ -49,7 +49,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      baseURL: 'http://localhost:5000'
+      baseURL: 'http://localhost:5000',
+      uploadServiceURL: 'http://localhost:5001'
     }
   },
 
@@ -63,14 +64,21 @@ export default defineNuxtConfig({
         signUp: { path: '/register', method: 'post' },
         getSession: { path: '/me', method: 'get' }
       },
-      pages: {
-        login: '/login'
-      },
+      pages: { login: '/login' },
       token: {
         signInResponseTokenPointer: '/access_token',
         type: 'Bearer',
         headerName: 'Authorization',
         maxAgeInSeconds: 60 * 30
+      },
+      refresh: {
+        isEnabled: true,
+        endpoint: { path: '/refresh', method: 'post' },
+        refreshOnlyToken: true,
+        token: {
+          refreshResponseTokenPointer: '/access_token',
+          signInResponseRefreshTokenPointer: '/refreshToken'
+        }
       },
       session: {
         dataType: {
@@ -79,12 +87,14 @@ export default defineNuxtConfig({
           first_name: 'string',
           last_name: 'string',
           email: 'string',
-          avatar: 'string',
-        }
-      }
+          avatar: 'string'
+        },
+        dataResponsePointer: '/user'
+      },
     },
-    globalAppMiddleware: {
-      isEnabled: true
+    sessionRefresh: {
+      enablePeriodically: false,
+      enableOnWindowFocus: true
     }
   }
 })

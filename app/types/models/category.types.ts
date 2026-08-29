@@ -1,17 +1,17 @@
 import type { Product } from "./product.types"
 
 export interface Category {
-    id: number
-    uuid: string
-    name: string
-    description: string | null
-    is_active: boolean
+  id: number
+  uuid: string
+  name: string
+  description: string | null
+  is_active: boolean
 
-    products: Product[]
+  products: Product[]
 
-    created_at: string
-    updated_at: string
-    deleted_at: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
 }
 
 export type CreateCategory = Omit<
