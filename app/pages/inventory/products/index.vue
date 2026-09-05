@@ -92,6 +92,10 @@ import type { Category } from '~/types/models/category.types';
 import type { Product } from '~/types/models/product.types';
 import type { IListResponse } from '~/types/response';
 
+definePageMeta({
+    layout: 'inventory'
+})
+
 const { baseUrl, token } = useAPI();
 
 const items = ref<BreadcrumbItem[]>([

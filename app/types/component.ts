@@ -19,3 +19,9 @@ export interface Filter {
 export interface ProductFilter extends Filter {
     category: number 
 }
+
+export interface FeaturesLogoTypes {
+    title: string
+    description: string
+    icon: string
+}

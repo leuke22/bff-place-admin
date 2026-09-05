@@ -107,7 +107,8 @@ const showPassword = ref(false)
 const loading = ref(false)
 const errorMessage = ref('')
 
-const { signIn } = useAuth()
+const { signIn, getSession } = useAuth();
+const route = useRoute();
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true
@@ -115,15 +116,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   try {
     await signIn(
-      {
-        email: event.data.email,
-        password: event.data.password
-      },
-      {
-        redirect: true,
-        callbackUrl: '/'
-      }
+      { email: event.data.email, password: event.data.password },
+      { redirect: false }
     )
+
+    await getSession()
+
+    await navigateTo((route.query.redirect as string) || '/', { external: false })
   } catch (err) {
     console.error(err)
     errorMessage.value = 'Invalid email or password. Please try again.'

@@ -73,7 +73,7 @@ export default defineNuxtConfig({
         maxAgeInSeconds: 60 * 30
       },
       refresh: {
-        isEnabled: true,
+        isEnabled: false,
         endpoint: { path: '/refresh', method: 'post' },
         refreshOnlyToken: true,
         token: {
@@ -95,7 +95,7 @@ export default defineNuxtConfig({
     },
     sessionRefresh: {
       enablePeriodically: false,
-      enableOnWindowFocus: true
+      enableOnWindowFocus: false
     }
   }
 })

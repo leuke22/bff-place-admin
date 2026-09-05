@@ -1,16 +1,18 @@
 // server/api/auth/logout.post.ts
 export default defineEventHandler(async (event) => {
-    const cookie = getHeader(event, 'cookie')
+    const cookieHeader = getHeader(event, 'cookie')
 
-    const response = await $fetch.raw('http://localhost:5000/api/auth/logout', {
-        method: 'POST',
-        headers: cookie ? { cookie } : {}
-    })
-
-    const setCookie = response.headers.get('set-cookie')
-    if (setCookie) {
-        appendHeader(event, 'set-cookie', setCookie)
+    try {
+        await $fetch('http://localhost:5000/api/auth/logout', {
+            method: 'POST',
+            headers: cookieHeader ? { cookie: cookieHeader } : {}
+        })
+    } catch {
+        // best-effort — clear cookies regardless
     }
 
-    return response._data
+    deleteCookie(event, 'access_token', { path: '/' })
+    deleteCookie(event, 'refresh_token', { path: '/api/auth' })
+
+    return { success: true }
 })
