@@ -2,6 +2,7 @@
     <div class="flex flex-row justify-between items-center">
         <div class="flex flex-col">
             <h1 class="text-xl capitalize">{{ title }}</h1>
+            <p class="text-sm dark:text-gray-500 text-gray-400">{{ description }}</p>
             <UBreadcrumb :items="defaultItems" />
         </div>
         <div>
@@ -32,6 +33,7 @@ const route = useRoute();
 
 const props = defineProps<{
     title: string
+    description: string
     items: BreadcrumbItem[]
 }>()
 

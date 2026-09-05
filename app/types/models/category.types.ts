@@ -6,6 +6,7 @@ export interface Category {
   uuid: string
   name: string
   description: string | null
+  icon: string
   color: BadgeProps['color']
   image: string | null
   is_active: boolean
@@ -15,6 +16,19 @@ export interface Category {
   created_at: string
   updated_at: string
   deleted_at: string | null
+}
+
+export interface CategoryProductCount {
+  id: number
+  uuid: string
+  name: string
+  description: string | null
+  icon: string
+  color: BadgeProps['color']
+  image: string | null
+  is_active: boolean
+  products_count: string
+  created_at: string
 }
 
 export type CreateCategory = Omit<

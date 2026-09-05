@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-3">
-            <PageHeader v-model:view="view" title="Products" :items/>
+            <PageHeader v-model:view="view" title="Products" description="Manage your products" :items/>
         </div>
         <div class="flex flex-row justify-end gap-3 mb-3">
             <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral"/>
