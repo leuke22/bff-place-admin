@@ -5,7 +5,7 @@
             <p class="text-sm dark:text-gray-500 text-gray-400">{{ description }}</p>
             <UBreadcrumb :items="defaultItems" />
         </div>
-        <div>
+        <div v-if="hasView">
             <URadioGroup
                 v-model="view"
                 :items="options"
@@ -15,10 +15,10 @@
                 :ui="{ item: 'px-3 py-2' }"
             >
                 <template #label="{ item }">
-                    <div class="flex items-center gap-2">
+                    <span class="flex items-center gap-2">
                         <UIcon :name="item.icon" />
                         <span>{{ item.label }}</span>
-                    </div>
+                    </span>
                 </template>
             </URadioGroup>
         </div>
@@ -31,13 +31,16 @@ import type { ValueType, ViewTypes } from '~/types/component';
 
 const route = useRoute();
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     title: string
     description: string
     items: BreadcrumbItem[]
-}>()
+    hasView?: boolean
+}>(), {
+    hasView: true
+})
 
-const view = defineModel<ValueType>('view', { required: true });
+const view = defineModel<ValueType>('view');
 
 const defaultItems = ref<BreadcrumbItem[]>([
     {

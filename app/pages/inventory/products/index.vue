@@ -4,8 +4,8 @@
             <PageHeader v-model:view="view" title="Products" description="Manage your products" :items/>
         </div>
         <div class="flex flex-row justify-end gap-3 mb-3">
-            <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral"/>
-            <ProductCreateUpdate/>
+            <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" @click="() => { refresh }"/>
+            <UButton icon="lucide:plus" label="Add Product" to="/products/create"/>
         </div>
         <div>
             <PageView :view>
@@ -62,10 +62,10 @@
                             <template #action-cell="{ row }">
                                 <div class="flex flex-row gap-2">
                                     <UTooltip text="View Product">
-                                        <UButton icon="lucide:eye" variant="outline" color="neutral"/>
+                                        <UButton icon="lucide:eye" variant="outline" color="neutral" :to="`/inventory/products/${row.original.uuid}`"/>
                                     </UTooltip>
                                     <UTooltip text="Edit Product">
-                                        <UButton icon="lucide:edit" variant="outline" color="tertiary"/>
+                                        <UButton icon="lucide:edit" variant="outline" color="tertiary" :to="{ path: `/inventory/products/${row.original.uuid}`, query: { isEdit: 'true' } }"/>
                                     </UTooltip>
                                     <UTooltip text="Delete Product">
                                         <UButton icon="lucide:trash-2" variant="outline" color="error"/>
@@ -86,7 +86,6 @@
 
 <script setup lang="ts">
 import type { BreadcrumbItem, TableColumn } from '@nuxt/ui';
-import { transform } from 'typescript';
 import type { Pagination, ProductFilter, ValueType } from '~/types/component';
 import type { Category } from '~/types/models/category.types';
 import type { Product } from '~/types/models/product.types';
@@ -162,6 +161,4 @@ const { data: categories } = await useLazyFetch('/categories', {
         ]
     }
 })
-
-console.log('categories', categories);
 </script>

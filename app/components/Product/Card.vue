@@ -13,7 +13,7 @@
             <p class="dark:text-gray-400 text-gray-700 text-sm">{{ product.description }}</p>
             <p>{{ formatCurrency(product.price) }}</p>
             <div class="flex flex-row justify-between">
-                <UBadge :label="product.category.name" :color="product.category.color" variant="subtle"/>
+                <UBadge :label="product.category.name" variant="subtle" :style="{ backgroundColor: product.category.color, color: 'white' }"/>
                 <UDropdownMenu :items="cardItems">
                     <UButton icon="lucide:more-horizontal" variant="ghost"/>
                 </UDropdownMenu>
@@ -34,7 +34,7 @@ const cardItems = ref<DropdownMenuItem[]>([
     { 
         label: 'Edit',
         icon: 'lucide:edit',
-        to: `/products/${props.product.uuid}`
+        to: { path: `/inventory/products/${props.product.uuid}`, query: { isEdit: 'true' } }
     },
     {
         label: 'Delete',

@@ -2,7 +2,7 @@
     <div class="rounded-lg border border-default overflow-hidden bg-default">
         <div class="relative">
             <NuxtImg
-                :src="category.image ?? '/images/category-placeholder.webp'"
+                :src="category.image ?? '/images/inasal.webp'"
                 class="w-full h-44 object-cover"
             />
 
@@ -22,9 +22,9 @@
             <div class="absolute -bottom-6 left-4">
                 <div
                     class="size-12 rounded-full flex items-center justify-center ring-4 ring-default"
-                    :style="{ backgroundColor: category.color ?? '#EF4444' }"
+                    :style="{ backgroundColor: category.color }"
                 >
-                    <UIcon :name="category.icon ?? 'lucide:shapes'" class="size-5 text-white" />
+                    <UIcon :name="category.icon" class="size-5 text-white" />
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, CategoryProductCount } from '~/types/models/category.types'
+import type { CategoryProductCount } from '~/types/models/category.types'
 
 const props = defineProps<{
     category: CategoryProductCount

@@ -7,7 +7,7 @@ export interface Category {
   name: string
   description: string | null
   icon: string
-  color: BadgeProps['color']
+  color: string
   image: string | null
   is_active: boolean
 
@@ -24,7 +24,7 @@ export interface CategoryProductCount {
   name: string
   description: string | null
   icon: string
-  color: BadgeProps['color']
+  color: string 
   image: string | null
   is_active: boolean
   products_count: string

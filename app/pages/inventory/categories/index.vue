@@ -5,7 +5,7 @@
         </div>
         <div class="flex flex-row justify-end gap-3 mb-3">
             <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" :loading="status === 'pending'" @click="refresh()"/>
-            <CategoryCreateUpdate @saved="refresh()"/>
+            <UButton icon="lucide:circle-plus" label="Add Category" to="/categories/create"/>
         </div>
         <div>
             <PageView :view>
@@ -45,14 +45,14 @@
                             <template #category-cell="{ row }">
                                 <div class="flex flex-row gap-4 items-center">
                                     <div class="size-15 rounded-lg overflow-hidden shrink-0">
-                                        <NuxtImg :src="row.original.image ?? '/images/category-placeholder.webp'" class="w-full h-full object-cover"/>
+                                        <NuxtImg :src="row.original.image ?? '/images/inasal.webp'" class="w-full h-full object-cover"/>
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="size-8 rounded-full flex items-center justify-center shrink-0"
-                                            :style="{ backgroundColor: row.original.color ?? '#EF4444' }"
+                                            :style="{ backgroundColor: row.original.color }"
                                         >
-                                            <UIcon :name="row.original.icon ?? 'lucide:shapes'" class="size-4 text-white"/>
+                                            <UIcon :name="row.original.icon" class="size-4 text-white"/>
                                         </div>
                                         <div>
                                             <h1 class="text-lg font-semibold">{{ row.original.name }}</h1>
@@ -61,7 +61,7 @@
                                     </div>
                                 </div>
                             </template>
-                            <template #products-cell="{ row }">
+                            <template #products_count-cell="{ row }">
                                 <div class="flex items-center gap-1.5">
                                     <UIcon name="lucide:box" class="size-4"/>
                                     <span>{{ row.original.products_count }} products</span>
@@ -102,7 +102,7 @@
 <script setup lang="ts">
 import type { BreadcrumbItem, TableColumn } from '@nuxt/ui';
 import type { Pagination, ValueType } from '~/types/component';
-import type { Category, CategoryProductCount } from '~/types/models/category.types';
+import type { CategoryProductCount } from '~/types/models/category.types';
 import type { IListResponse } from '~/types/response';
 
 definePageMeta({
@@ -173,20 +173,14 @@ const { data: categories, refresh, status } = useAsyncData(
 )
 
 function onView(category: CategoryProductCount) {
-    navigateTo(`/categories/${category.uuid}`)
+    navigateTo(`/inventory/categories/${category.uuid}`)
 }
 
 function onEdit(category: CategoryProductCount) {
-    // Wire this up to CategoryCreateUpdate the same way you decide to for
-    // ProductCreateUpdate — both currently open only from their own
-    // top-of-page trigger button, so row-level edit needs the same fix
-    // (e.g. expose an `open` ref via defineExpose and set it from here).
-    toast.add({ title: 'Hook up edit trigger', description: `Editing ${category.name}`, color: 'info' })
+    navigateTo({ path: `/inventory/categories/${category.uuid}`, query: { isEdit: 'true' } })
 }
 
-async function onDelete(category: CategoryProductCount
-
-) {
+async function onDelete(category: CategoryProductCount) {
     try {
         await $fetch(`/categories/${category.id}`, {
             baseURL: baseUrl,
