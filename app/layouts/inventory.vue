@@ -99,6 +99,7 @@ function getItems(state: 'collapsed' | 'expanded') {
         { label: 'Dashboard', icon: 'lucide:layout-dashboard', to: '/inventory' },
         { label: 'Categories', icon: 'lucide:folder-closed', to: '/inventory/categories' },
         { label: 'Products', icon: 'lucide:box', to: '/inventory/products' },
+        { label: 'Ingredients', icon: 'lucide:wheat', to: '/inventory/ingredients' },
         { label: 'Activity', icon: 'i-lucide-square-activity' },
         {
             label: 'Settings',
