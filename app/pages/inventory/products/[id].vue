@@ -10,8 +10,10 @@
             <UButton icon="lucide:arrow-left" label="Back to Products" variant="ghost" color="neutral" to="/inventory/products"/>
         </div>
 
-        <div v-if="product" class="max-w-2xl">
-            <ProductForm :mode="mode" :product="product" @success="onSuccess" @cancel="onCancel"/>
+        <div v-if="product" class="w-full space-y-8 flex flex-row gap-10">
+            <ProductForm class="flex-1" :mode="mode" :product="product" @success="onSuccess" @cancel="onCancel"/>
+
+            <ProductRecipe class="flex-1" :product-id="product.id"/>
         </div>
 
         <div v-else class="max-w-2xl">
