@@ -10,8 +10,14 @@
             <UButton icon="lucide:arrow-left" label="Back to Ingredients" variant="ghost" color="neutral" to="/inventory/ingredients"/>
         </div>
 
-        <div v-if="ingredient" class="max-w-2xl">
+        <div v-if="ingredient" class="max-w-2xl space-y-8">
             <IngredientForm :mode="mode" :ingredient="ingredient" @success="onSuccess" @cancel="onCancel"/>
+
+            <IngredientStockHistory
+                :ingredient-id="ingredient.id"
+                :mode="mode"
+                @recorded="onStockRecorded"
+            />
         </div>
 
         <div v-else class="max-w-2xl">
@@ -61,5 +67,11 @@ function onSuccess(updated: Ingredient) {
 
 function onCancel() {
     mode.value = 'view'
+}
+
+// Keep the displayed current_stock in sync after a movement is recorded,
+// since that changes the ingredient outside the form's own save flow.
+function onStockRecorded(updated: Ingredient) {
+    ingredient.value = updated
 }
 </script>
