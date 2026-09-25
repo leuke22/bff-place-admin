@@ -1,5 +1,14 @@
 <template>
     <div v-if="isViewMode" class="space-y-6">
+        <div class="relative rounded-lg overflow-hidden border border-default">
+            <NuxtImg :src="ingredient?.image ?? '/images/inasal.webp'" class="w-full h-40 object-cover"/>
+            <UBadge
+                class="absolute top-3 right-3"
+                :label="isLowStock ? 'Low Stock' : 'In Stock'"
+                :color="isLowStock ? 'error' : 'success'"
+            />
+        </div>
+
         <div class="flex items-center gap-3">
             <div class="size-12 rounded-full bg-secondary-200 dark:bg-secondary-900/10 flex items-center justify-center shrink-0">
                 <UIcon name="lucide:wheat" class="size-6 text-secondary-700 dark:text-secondary-400"/>
@@ -34,6 +43,22 @@
     </div>
 
     <UForm v-else :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+        <UFormField label="Image" name="image">
+            <div class="flex items-center gap-4">
+                <div v-if="imagePreviewUrl" class="size-20 rounded-lg overflow-hidden border border-default shrink-0">
+                    <NuxtImg :src="imagePreviewUrl" class="w-full h-full object-cover"/>
+                </div>
+                <UFileUpload
+                    v-model="file"
+                    label="Drop your image here"
+                    description="SVG, PNG, JPG or GIF (max. 2MB)"
+                    accept="image/svg+xml,image/png,image/jpeg,image/gif"
+                    :max-size="2 * 1024 * 1024"
+                    class="flex-1"
+                />
+            </div>
+        </UFormField>
+
         <UFormField label="Name" name="name" required>
             <UInput v-model="state.name" placeholder="Ingredient name" class="w-full" />
         </UFormField>
@@ -53,12 +78,12 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-            <UButton label="Cancel" color="neutral" variant="soft" :disabled="loading" @click="onCancel" />
+            <UButton label="Cancel" color="neutral" variant="soft" :disabled="loading || uploading" @click="onCancel" />
             <UButton
                 :label="isEditMode ? 'Update' : 'Create'"
                 type="submit"
-                :loading="loading"
-                :disabled="loading"
+                :loading="loading || uploading"
+                :disabled="loading || uploading"
             />
         </div>
     </UForm>
@@ -87,9 +112,23 @@ const emit = defineEmits<{
 const isEditMode = computed(() => props.mode === 'edit')
 const isViewMode = computed(() => props.mode === 'view')
 
+const { uploadFile, uploading, error: uploadError } = useUpload()
 const { baseUrl, token } = useAPI()
 const toast = useToast()
 const loading = ref(false)
+const file = ref<File | null>(null)
+
+// Shows the newly-picked file if there is one, otherwise falls back to the ingredient's
+// existing image — so editing an ingredient no longer looks like an empty dropzone.
+const imagePreviewUrl = ref<string | null>(props.ingredient?.image ?? null)
+
+watch(file, (newFile, oldFile) => {
+    // Clean up the previous object URL so we don't leak memory across picks
+    if (oldFile && imagePreviewUrl.value?.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreviewUrl.value)
+    }
+    imagePreviewUrl.value = newFile ? URL.createObjectURL(newFile) : (props.ingredient?.image ?? null)
+})
 
 const isLowStock = computed(() => {
     if (!props.ingredient) return false
@@ -121,9 +160,35 @@ watch(() => props.ingredient, (i) => {
     state.unit = i.unit as Schema['unit']
     state.current_stock = Number(i.current_stock)
     state.reorder_level = Number(i.reorder_level)
+    file.value = null
+    imagePreviewUrl.value = i.image ?? null
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+    // Default to the existing image when editing and no new file was picked
+    let imageUrl: string | undefined = props.ingredient?.image ?? undefined
+
+    // Only hit the upload service if the user actually picked a new file
+    if (file.value) {
+        const result = await uploadFile(file.value, 'ingredients')
+
+        if (!result) {
+            toast.add({
+                title: 'Image upload failed',
+                description: uploadError.value ?? 'Please try again.',
+                color: 'error',
+            })
+            return // stop here — don't create/update the ingredient without a successful upload
+        }
+
+        imageUrl = result.fileUrl
+    }
+
+    const body = {
+        ...event.data,
+        image: imageUrl,
+    }
+
     loading.value = true
     try {
         const response = isEditMode.value && props.ingredient
@@ -131,13 +196,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 baseURL: baseUrl,
                 method: 'PATCH',
                 headers: { authorization: token ?? '' },
-                body: event.data,
+                body,
             })
             : await $fetch<IResponse & { response: Ingredient }>('/ingredients', {
                 baseURL: baseUrl,
                 method: 'POST',
                 headers: { authorization: token ?? '' },
-                body: event.data,
+                body,
             })
 
         if (!response.success) {

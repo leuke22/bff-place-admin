@@ -3,6 +3,7 @@ export interface Ingredient {
   uuid: string
   name: string
   unit: string
+  image: string | null
   current_stock: string
   reorder_level: string
   created_at: string

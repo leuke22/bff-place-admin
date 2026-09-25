@@ -1,35 +1,46 @@
 <template>
-    <div class="rounded-lg border border-default overflow-hidden bg-default p-4 flex flex-col gap-3">
-        <div class="flex flex-row justify-between items-start">
-            <div class="flex items-center gap-3">
-                <div class="size-10 rounded-full bg-secondary-200 dark:bg-secondary-900/10 flex items-center justify-center shrink-0">
-                    <UIcon name="lucide:wheat" class="size-5 text-secondary-700 dark:text-secondary-400" />
-                </div>
-                <div>
-                    <h1 class="text-lg font-semibold">{{ ingredient.name }}</h1>
-                    <p class="text-sm dark:text-gray-500 text-gray-400">{{ ingredient.unit }}</p>
-                </div>
-            </div>
-            <UDropdownMenu :items="menuItems">
-                <UButton icon="lucide:more-horizontal" variant="ghost" color="neutral" square/>
-            </UDropdownMenu>
-        </div>
-
-        <div class="flex flex-row justify-between items-center">
-            <div>
-                <p class="text-xs uppercase text-muted tracking-wide">Current Stock</p>
-                <p class="text-lg font-medium">{{ Number(ingredient.current_stock) }} {{ ingredient.unit }}</p>
-            </div>
-            <UBadge
-                :color="isLowStock ? 'error' : 'success'"
-                :label="isLowStock ? 'Low Stock' : 'In Stock'"
-                variant="subtle"
+    <div class="rounded-lg border border-default overflow-hidden bg-default">
+        <div class="relative">
+            <NuxtImg
+                :src="ingredient.image ?? '/images/inasal.webp'"
+                class="w-full h-32 object-cover"
             />
+            <div class="absolute top-3 right-3">
+                <UDropdownMenu :items="menuItems">
+                    <UButton
+                        icon="lucide:more-horizontal"
+                        color="neutral"
+                        variant="solid"
+                        size="sm"
+                        class="bg-white/90 text-gray-700 hover:bg-white"
+                        square
+                    />
+                </UDropdownMenu>
+            </div>
         </div>
 
-        <p class="text-xs text-muted">
-            Reorder at {{ Number(ingredient.reorder_level) }} {{ ingredient.unit }}
-        </p>
+        <div class="p-4 flex flex-col gap-3">
+            <div>
+                <h1 class="text-lg font-semibold">{{ ingredient.name }}</h1>
+                <p class="text-sm dark:text-gray-500 text-gray-400">{{ ingredient.unit }}</p>
+            </div>
+
+            <div class="flex flex-row justify-between items-center">
+                <div>
+                    <p class="text-xs uppercase text-muted tracking-wide">Current Stock</p>
+                    <p class="text-lg font-medium">{{ Number(ingredient.current_stock) }} {{ ingredient.unit }}</p>
+                </div>
+                <UBadge
+                    :color="isLowStock ? 'error' : 'success'"
+                    :label="isLowStock ? 'Low Stock' : 'In Stock'"
+                    variant="subtle"
+                />
+            </div>
+
+            <p class="text-xs text-muted">
+                Reorder at {{ Number(ingredient.reorder_level) }} {{ ingredient.unit }}
+            </p>
+        </div>
     </div>
 </template>
 

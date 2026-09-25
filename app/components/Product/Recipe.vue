@@ -5,10 +5,11 @@
                 <h2 class="text-lg font-semibold">Recipe</h2>
                 <p class="text-sm dark:text-gray-500 text-gray-400">Ingredients used to make this product</p>
             </div>
+            <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" size="sm" :loading="status === 'pending'" @click="refresh()"/>
         </div>
 
-        <!-- Add ingredient row -->
-        <div class="flex flex-row gap-2 items-start">
+        <!-- Add ingredient row — only in edit mode -->
+        <div v-if="isEditMode" class="flex flex-row gap-2 items-start">
             <USelectMenu
                 v-model="newItem.ingredient_id"
                 :items="availableIngredientOptions"
@@ -45,7 +46,11 @@
                     <p class="text-xs text-muted">{{ item.ingredient.unit }}</p>
                 </div>
 
-                <div class="flex flex-row items-center gap-2">
+                <!-- View mode: plain display, no controls -->
+                <span v-if="!isEditMode" class="text-sm">{{ Number(item.quantity_used) }} {{ item.ingredient.unit }}</span>
+
+                <!-- Edit mode: inline edit/remove -->
+                <div v-else class="flex flex-row items-center gap-2">
                     <template v-if="editingId === item.id">
                         <UInput
                             v-model="editQuantity"
@@ -78,9 +83,17 @@ import type { RecipeItem } from '~/types/models/recipe.types'
 import type { Ingredient } from '~/types/models/ingredient.types'
 import type { IListResponse, IResponse } from '~/types/response'
 
-const props = defineProps<{
+// mode mirrors ProductForm: 'view' is read-only display, 'edit' is the only mode
+// where ingredients can be added, edited, or removed. 'create' isn't meaningful
+// here since a product needs a saved id before it can have a recipe.
+const props = withDefaults(defineProps<{
     productId: number
-}>()
+    mode?: 'view' | 'edit'
+}>(), {
+    mode: 'view'
+})
+
+const isEditMode = computed(() => props.mode === 'edit')
 
 const { baseUrl, token } = useAPI()
 const toast = useToast()
@@ -100,11 +113,12 @@ const { data: recipe, refresh, status } = useAsyncData(
     }
 )
 
-// ---- all ingredients (for the picker) ----
+// ---- all ingredients (for the picker) — only needed in edit mode ----
 const { data: allIngredients } = await useLazyFetch('/ingredients', {
     key: 'ingredients-for-recipe',
     baseURL: baseUrl,
     headers: { authorization: token ?? '' },
+    immediate: isEditMode.value,
     transform: (data: IListResponse<Ingredient>) => data.response.rows,
 })
 

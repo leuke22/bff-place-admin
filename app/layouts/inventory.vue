@@ -100,6 +100,7 @@ function getItems(state: 'collapsed' | 'expanded') {
         { label: 'Categories', icon: 'lucide:folder-closed', to: '/inventory/categories' },
         { label: 'Products', icon: 'lucide:box', to: '/inventory/products' },
         { label: 'Ingredients', icon: 'lucide:wheat', to: '/inventory/ingredients' },
+        { label: 'Suppliers', icon: 'lucide:truck', to: '/inventory/suppliers' },
         { label: 'Activity', icon: 'i-lucide-square-activity' },
         {
             label: 'Settings',
