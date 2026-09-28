@@ -11,21 +11,20 @@
             }"
         >
             <template #header>
-                <UDropdownMenu
-                    :items="teamsItems"
-                    :content="{ align: 'start', collisionPadding: 12 }"
-                    :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) min-w-48' }"
-                >
-                <UButton
-                    v-bind="selectedTeam"
-                    trailing-icon="i-lucide-chevrons-up-down"
-                    color="neutral"
-                    variant="ghost"
-                    square
-                    class="w-full data-[state=open]:bg-elevated overflow-hidden"
-                    :ui="{ trailingIcon: 'text-dimmed ms-auto' }"
-                />
-                </UDropdownMenu>
+                <div v-if="sidebarOpen" class="flex flex-row gap-2 items-center">
+                    <div class="size-10 overflow-hidden rounded-full">
+                        <NuxtImg src="/images/bff-logo.jpg" class="w-full h-full"/>
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 class="font-semibold text-sm">BFF <span class="text-primary-400">PLACE</span></h1>
+                        <p class="font-medium text-xs">Inventory System</p>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="size-10 overflow-hidden rounded-full">
+                        <NuxtImg src="/images/bff-logo.jpg" class="w-full h-full"/>
+                    </div>
+                </div>
             </template>
 
             <template #default="{ state }">
@@ -74,25 +73,8 @@ import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const open = useSidebar()
 const colorMode = useColorMode()
-const { data, signOut } = useAuth()
-
-const teams = ref([
-  { label: 'Nuxt', avatar: { src: 'https://github.com/nuxt.png', alt: 'Nuxt' } },
-  { label: 'Vue', avatar: { src: 'https://github.com/vuejs.png', alt: 'Vue' } },
-  { label: 'UnJS', avatar: { src: 'https://github.com/unjs.png', alt: 'UnJS' } }
-])
-const selectedTeam = ref(teams.value[0])
-
-const teamsItems = computed<DropdownMenuItem[][]>(() => [
-    teams.value.map((team, index) => ({
-        ...team,
-        kbds: ['meta', String(index + 1)],
-        onSelect() {
-        selectedTeam.value = team
-        }
-    })),
-    [{ label: 'Create team', icon: 'i-lucide-circle-plus' }]
-])
+const { data, signOut } = useAuth();
+const sidebarOpen = useSidebar();
 
 function getItems(state: 'collapsed' | 'expanded') {
     return [
@@ -101,27 +83,13 @@ function getItems(state: 'collapsed' | 'expanded') {
         { label: 'Products', icon: 'lucide:box', to: '/inventory/products' },
         { label: 'Ingredients', icon: 'lucide:wheat', to: '/inventory/ingredients' },
         { label: 'Suppliers', icon: 'lucide:truck', to: '/inventory/suppliers' },
-        { label: 'Purchase Orders', icon: 'lucide:clipboard-list', to: '/inventory/purchase-orders' },
-        { label: 'Activity', icon: 'i-lucide-square-activity' },
-        {
-            label: 'Settings',
-            icon: 'i-lucide-settings',
-            defaultOpen: true,
-            children: state === 'expanded'
-                ? [
-                    { label: 'General', icon: 'i-lucide-house' },
-                    { label: 'Team', icon: 'i-lucide-users' },
-                    { label: 'Billing', icon: 'i-lucide-credit-card' }
-                ]
-                : []
-        }
+        { label: 'Purchase Orders', icon: 'lucide:clipboard-list', to: '/inventory/purchase-orders' }
     ] satisfies NavigationMenuItem[]
 }
 
 const userItems = computed<DropdownMenuItem[][]>(() => [
     [
         { label: 'Profile', icon: 'i-lucide-user' },
-        { label: 'Billing', icon: 'i-lucide-credit-card' },
         { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' }
     ],
     [
@@ -157,7 +125,6 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
         }
     ],
     [
-        { label: 'GitHub', icon: 'i-simple-icons-github', to: 'https://github.com/nuxt/ui', target: '_blank' },
         {
             label: 'Log out',
             icon: 'i-lucide-log-out',
@@ -166,5 +133,4 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
     ]
 ])
 
-defineShortcuts(extractShortcuts(teamsItems.value))
 </script>

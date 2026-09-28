@@ -11,9 +11,9 @@
         </div>
 
         <div v-if="product" class="w-full space-y-8 flex flex-row gap-10">
-            <ProductForm class="flex-1" :mode="mode" :product="product" @success="onSuccess" @cancel="onCancel"/>
+            <ProductForm class="flex-2" :mode="mode" :product="product" @success="onSuccess" @cancel="onCancel"/>
 
-            <ProductRecipe :product-id="product.id" :mode="mode === 'edit' ? 'edit' : 'view'"/>
+            <ProductRecipe class="flex-1" :product-id="product.id" :mode="mode === 'edit' ? 'edit' : 'view'"/>
         </div>
 
         <div v-else class="max-w-2xl">

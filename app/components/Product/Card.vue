@@ -32,12 +32,17 @@ const props = defineProps<{
 
 const cardItems = ref<DropdownMenuItem[]>([
     { 
-        label: 'Edit',
+        label: 'View Product',
+        icon: 'lucide:eye',
+        to: { path: `/inventory/products/${props.product.uuid}` }
+    },
+    { 
+        label: 'Edit Product',
         icon: 'lucide:edit',
         to: { path: `/inventory/products/${props.product.uuid}`, query: { isEdit: 'true' } }
     },
     {
-        label: 'Delete',
+        label: 'Delete Product',
         icon: 'lucide:trash'
     }
 ])

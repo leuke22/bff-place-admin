@@ -1,15 +1,15 @@
 <template>
     <UHeader>
       <template #title>
-          <div class="flex flex-row gap-2 items-center">
-              <div class="size-12 overflow-hidden rounded-full">
-              <NuxtImg src="/images/bff-logo.jpg" class="w-full h-full"/>
-              </div>
-              <div>
-              <h1 class="font-semibold">BFF <span class="text-primary-400">PLACE</span></h1>
-              <p class="font-medium text-sm">POS & Inventory System</p>
-              </div>
+        <div class="flex flex-row gap-2 items-center">
+          <div class="size-12 overflow-hidden rounded-full">
+            <NuxtImg src="/images/bff-logo.jpg" class="w-full h-full"/>
           </div>
+          <div>
+            <h1 class="font-semibold">BFF <span class="text-primary-400">PLACE</span></h1>
+            <p class="font-medium text-sm">POS & Inventory System</p>
+          </div>
+        </div>
       </template>
 
       <UNavigationMenu :items="items" />

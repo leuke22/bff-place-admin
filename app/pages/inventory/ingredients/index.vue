@@ -176,11 +176,11 @@ const filteredIngredients = computed(() => {
 })
 
 function onView(ingredient: Ingredient) {
-    navigateTo(`/inventory/ingredients/${ingredient.id}`)
+    navigateTo(`/inventory/ingredients/${ingredient.uuid}`)
 }
 
 function onEdit(ingredient: Ingredient) {
-    navigateTo({ path: `/inventory/ingredients/${ingredient.id}`, query: { isEdit: 'true' } })
+    navigateTo({ path: `/inventory/ingredients/${ingredient.uuid}`, query: { isEdit: 'true' } })
 }
 
 async function onDelete(ingredient: Ingredient) {

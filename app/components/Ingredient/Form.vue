@@ -192,7 +192,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     loading.value = true
     try {
         const response = isEditMode.value && props.ingredient
-            ? await $fetch<IResponse & { response: Ingredient }>(`/ingredients/${props.ingredient.id}`, {
+            ? await $fetch<IResponse & { response: Ingredient }>(`/ingredients/${props.ingredient.uuid}`, {
                 baseURL: baseUrl,
                 method: 'PATCH',
                 headers: { authorization: token ?? '' },
