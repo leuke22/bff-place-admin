@@ -5,7 +5,7 @@
         </div>
         <div class="flex flex-row justify-end gap-3 mb-3">
             <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" @click="() => { refresh }"/>
-            <UButton icon="lucide:plus" label="Add Product" to="/products/create"/>
+            <UButton icon="lucide:plus" label="Add Product" to="/inventory/products/create"/>
         </div>
         <div>
             <PageView :view>

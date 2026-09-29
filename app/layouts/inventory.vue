@@ -71,8 +71,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
-const open = useSidebar()
-const colorMode = useColorMode()
+const open = useSidebar();
+const colorMode = useColorMode();
 const { data, signOut } = useAuth();
 const sidebarOpen = useSidebar();
 
@@ -91,6 +91,24 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
     [
         { label: 'Profile', icon: 'i-lucide-user' },
         { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' }
+    ],
+    [
+        { 
+            label: 'Navigate to',
+            icon: 'lucide:navigation',
+            children: [
+                {
+                    label: 'Home',
+                    icon: 'lucide:house',
+                    tot: '/'
+                },
+                { 
+                    label: 'Point of Sale', 
+                    icon: 'lucide:package',
+                    to: '/pos' 
+                }
+            ]
+        }
     ],
     [
         {

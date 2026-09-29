@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-3">
-            <PageHeader title="Create Category" description="Add a new product category" :items/>
+            <PageHeader title="Create Category" description="Add a new product category" :has-view="false" :items/>
         </div>
         <div class="max-w-2xl">
             <CategoryForm mode="create" @success="onSuccess" @cancel="onCancel"/>

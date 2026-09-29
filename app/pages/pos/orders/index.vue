@@ -77,6 +77,11 @@
             No orders found.
         </div>
     </div>
+        <UModal v-model:open="paymentModalOpen" title="Take Payment" :description="payingOrder ? `Order ${payingOrder.order_number}` : ''">
+        <template #body>
+            <OrderPaymentModal v-if="payingOrder" :order="payingOrder" @success="onPaid" @cancel="paymentModalOpen = false"/>
+        </template>
+    </UModal>
 </template>
 
 <script setup lang="ts">
@@ -108,6 +113,9 @@ const tabs: { value: Tab; label: string }[] = [
 ]
 
 const activeTab = ref<Tab>('active')
+
+const paymentModalOpen = ref(false)
+const payingOrder = ref<Order | null>(null)
 
 const { data: orders, refresh, status } = useAsyncData(
     'pos-orders',
@@ -143,6 +151,16 @@ async function onAdvance(order: Order) {
 async function onCancel(order: Order) {
     if (!confirm(`Cancel order ${order.order_number}?`)) return
     if (await updateStatus(order, 'cancelled')) refresh()
+}
+
+function openPayment(order: Order) {
+    payingOrder.value = order
+    paymentModalOpen.value = true
+}
+
+function onPaid() {
+    paymentModalOpen.value = false
+    refresh()
 }
 
 // Keep the list fresh without anyone having to hit refresh

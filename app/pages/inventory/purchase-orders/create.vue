@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-3">
-            <PageHeader title="Create Purchase Order" description="Order stock from a supplier" :items/>
+            <PageHeader title="Create Purchase Order" description="Order stock from a supplier" :has-view="false" :items/>
         </div>
         <div class="max-w-3xl space-y-4">
             <UFormField label="Supplier" name="supplier_id" required>

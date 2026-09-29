@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-3">
-            <PageHeader title="Create Product" description="Add a new product to your inventory" :items/>
+            <PageHeader title="Create Product" description="Add a new product to your inventory" :has-view="false" :items/>
         </div>
         <div class="max-w-2xl">
             <ProductForm mode="create" @success="onSuccess" @cancel="onCancel"/>

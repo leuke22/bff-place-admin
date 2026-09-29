@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-3">
-            <PageHeader title="Create Supplier" description="Add a new ingredient supplier" :items/>
+            <PageHeader title="Create Supplier" description="Add a new ingredient supplier" :has-view="false" :items/>
         </div>
         <div class="max-w-2xl">
             <SupplierForm mode="create" @success="onSuccess" @cancel="onCancel"/>

@@ -5,7 +5,7 @@
         </div>
         <div class="flex flex-row justify-end gap-3 mb-3">
             <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" :loading="status === 'pending'" @click="refresh()"/>
-            <UButton icon="lucide:circle-plus" label="Add Category" to="/categories/create"/>
+            <UButton icon="lucide:circle-plus" label="Add Category" to="/inventory/categories/create"/>
         </div>
         <div>
             <PageView :view>

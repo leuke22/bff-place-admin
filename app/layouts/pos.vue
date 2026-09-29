@@ -11,9 +11,19 @@
             }"
         >
             <template #header>
-                <div class="flex items-center gap-2 px-1.5 py-1 overflow-hidden">
-                    <UIcon name="lucide:shopping-cart" class="size-5 text-primary shrink-0"/>
-                    <span class="font-semibold truncate">Point of Sale</span>
+                <div v-if="sidebarOpen" class="flex flex-row gap-2 items-center">
+                    <div class="size-10 overflow-hidden rounded-full">
+                        <NuxtImg src="/images/bff-logo.jpg" class="w-full h-full"/>
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 class="font-semibold text-sm">BFF <span class="text-primary-400">PLACE</span></h1>
+                        <p class="font-medium text-xs">Inventory System</p>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="size-10 overflow-hidden rounded-full">
+                        <NuxtImg src="/images/bff-logo.jpg" class="w-full h-full"/>
+                    </div>
                 </div>
             </template>
 
@@ -61,19 +71,71 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
-const open = useSidebar()
-const { data, signOut } = useAuth()
+const open = useSidebar();
+const colorMode = useColorMode();
+const { data, signOut } = useAuth();
+const sidebarOpen = useSidebar();
 
 const items: NavigationMenuItem[] = [
     { label: 'New Order', icon: 'lucide:shopping-cart', to: '/pos', exact: true },
     { label: 'Orders', icon: 'lucide:receipt', to: '/pos/orders' },
-    { label: 'Inventory', icon: 'lucide:package', to: '/inventory' }
+    
 ]
 
 const userItems = computed<DropdownMenuItem[][]>(() => [
     [
         { label: 'Profile', icon: 'i-lucide-user' },
-        { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' }
+        { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
+    ],
+    [
+        { 
+            label: 'Navigate to',
+            icon: 'lucide:navigation',
+            children: [
+                {
+                    label: 'Home',
+                    icon: 'lucide:house',
+                    tot: '/'
+                },
+                { 
+                    label: 'Inventory', 
+                    icon: 'lucide:package',
+                    to: '/inventory' 
+                }
+            ]
+        }
+    ],
+    [
+        {
+        label: 'Appearance',
+        icon: 'i-lucide-sun-moon',
+        children: [
+            {
+                label: 'Light',
+                icon: 'i-lucide-sun',
+                type: 'checkbox',
+                checked: colorMode.value === 'light',
+                onUpdateChecked(checked: boolean) {
+                    if (checked) colorMode.preference = 'light'
+                },
+                onSelect(e: Event) {
+                    e.preventDefault()
+                }
+            },
+            {
+                label: 'Dark',
+                icon: 'i-lucide-moon',
+                type: 'checkbox',
+                checked: colorMode.value === 'dark',
+                onUpdateChecked(checked: boolean) {
+                    if (checked) colorMode.preference = 'dark'
+                },
+                onSelect(e: Event) {
+                    e.preventDefault()
+                }
+            }
+        ]
+        }
     ],
     [
         {

@@ -33,7 +33,7 @@
                     </div>
                 </div>
 
-                <div v-if="nextOrderAction(order.status) || canCancelOrder(order.status)" class="flex flex-row justify-end gap-2 pt-2 border-t border-default">
+                <div v-if="nextOrderAction(order.status) || canCancelOrder(order.status) || canPayOrder(order.status)" class="flex flex-row justify-end gap-2 pt-2 border-t border-default">
                     <UButton
                         v-if="canCancelOrder(order.status)"
                         label="Cancel Order"
@@ -46,8 +46,16 @@
                         v-if="nextOrderAction(order.status)"
                         :label="nextOrderAction(order.status)!.label"
                         :icon="nextOrderAction(order.status)!.icon"
+                        variant="outline"
                         :loading="updatingUuid === order.uuid"
                         @click="onAdvance"
+                    />
+                    <UButton
+                        v-if="canPayOrder(order.status)"
+                        label="Take Payment"
+                        icon="lucide:banknote"
+                        color="success"
+                        @click="paymentModalOpen = true"
                     />
                 </div>
             </div>
@@ -91,6 +99,12 @@
                 Order not found.
             </div>
         </div>
+
+        <UModal v-model:open="paymentModalOpen" title="Take Payment" :description="order ? `Order ${order.order_number}` : ''">
+            <template #body>
+                <OrderPaymentModal v-if="order" :order="order" @success="onPaid" @cancel="paymentModalOpen = false"/>
+            </template>
+        </UModal>
     </div>
 </template>
 
@@ -123,6 +137,13 @@ const items = computed<BreadcrumbItem[]>(() => [
     { label: 'Orders', to: '/pos/orders' },
     { label: order.value?.order_number ?? 'Order', to: route.fullPath }
 ])
+
+const paymentModalOpen = ref(false)
+
+function onPaid() {
+    paymentModalOpen.value = false
+    refresh()
+}
 
 async function onAdvance() {
     if (!order.value) return

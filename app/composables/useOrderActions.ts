@@ -17,6 +17,10 @@ export function canCancelOrder(status: OrderStatus) {
     return status === 'pending' || status === 'preparing' || status === 'ready'
 }
 
+export function canPayOrder(status: OrderStatus) {
+    return status === 'pending' || status === 'preparing' || status === 'ready'
+}
+
 export function orderTypeLabel(type: OrderType) {
     return type === 'dine_in' ? 'Dine-in' : 'Takeout'
 }

@@ -51,19 +51,12 @@ const items = computed<NavigationMenuItem[]>(() => [
     to: '/',
   },
   {
-    label: 'Landing Page',
-    to: '/',
-    target: '_blank'
-  },
-  {
-    label: 'Point of Sale', 
+    label: 'Go to Point of Sale', 
     to: '/pos',
-    target: '_blank'
   },
   {
-    label: 'Inventory',
+    label: 'Go to Inventory',
     to: '/inventory',
-    target: '_blank'
   }
 ])
 

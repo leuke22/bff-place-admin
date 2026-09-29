@@ -1,7 +1,10 @@
 <template>
     <div>
         <div class="mb-3">
-            <PageHeader title="Create Ingredient" description="Add a new ingredient to your inventory" :items/>
+            <PageHeader title="Create Ingredient" description="Add a new ingredient to your inventory" :has-view="false" :items/>
+        </div>
+        <div class="my-2 flex flex-row justify-between">
+            <UButton icon="lucide:arrow-left" label="Back to Ingredients" variant="ghost" color="neutral" to="/inventory/ingredients"/>
         </div>
         <div class="max-w-2xl">
             <IngredientForm mode="create" @success="onSuccess" @cancel="onCancel"/>
