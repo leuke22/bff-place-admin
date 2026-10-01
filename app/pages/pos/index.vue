@@ -140,9 +140,10 @@
                     size="lg"
                     block
                     :loading="placing"
-                    :disabled="!items.length || discountTooHigh"
+                    :disabled="!items.length || discountTooHigh || !shift"
                     @click="onPlaceOrder"
                 />
+                <p v-if="!shift" class="text-xs text-error text-center">Open a shift above before taking orders.</p>
             </div>
         </div>
     </div>
@@ -166,6 +167,8 @@ const {
     items, orderType, discount, discountAmount, subtotal, total, count, discountTooHigh,
     quantityOf, add, increment, decrement, remove, setNotes, clear,
 } = usePosCart()
+
+const { shift } = useShift()
 
 const search = ref('')
 const selectedCategory = ref(0)

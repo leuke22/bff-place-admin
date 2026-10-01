@@ -51,7 +51,10 @@
                     :ui="{ trailingIcon: 'text-dimmed ms-auto' }"
                 >
                     <UAvatar :alt="data?.first_name" size="xs" />
-                    <span class="truncate">{{ data?.first_name }}</span>
+                    <div class="flex flex-col items-start truncate">
+                        <span class="truncate">{{ data?.first_name }}</span>
+                        <span class="text-xs text-muted capitalize">{{ data?.role }}</span>
+                    </div>
                 </UButton>
                 </UDropdownMenu>
             </template> 
@@ -151,4 +154,9 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
     ]
 ])
 
+watch(() => data.value?.role, (role) => {
+    if (role === 'cashier') {
+        navigateTo('/pos')
+    }
+}, { immediate: true })
 </script>
