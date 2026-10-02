@@ -1,19 +1,18 @@
-import type { Shift } from '~/types/models/shift.types'
+import type { ShiftWithSummary } from '~/types/models/shift.types'
 import type { IResponse } from '~/types/response'
 
 export function useShift() {
     const { baseUrl, token } = useAPI()
     const toast = useToast()
 
-    const shift = useState<Shift | null>('pos-current-shift', () => null)
+    const shift = useState<ShiftWithSummary | null>('pos-current-shift', () => null)
     const loading = useState('pos-shift-loading', () => false)
     const checked = useState('pos-shift-checked', () => false)
 
-    // 404 here just means "no open shift" — that's an expected state, not an error to surface.
     async function fetchCurrent() {
         loading.value = true
         try {
-            const response = await $fetch<IResponse & { response: Shift }>('/shifts/current', {
+            const response = await $fetch<IResponse & { response: ShiftWithSummary }>('/shifts/current', {
                 baseURL: baseUrl,
                 headers: { authorization: token ?? '' },
             })
@@ -29,14 +28,14 @@ export function useShift() {
     async function open(openingCash: number) {
         loading.value = true
         try {
-            const response = await $fetch<IResponse & { response: Shift }>('/shifts', {
+            const response = await $fetch<IResponse & { response: ShiftWithSummary }>('/shifts', {
                 baseURL: baseUrl,
                 method: 'POST',
                 headers: { authorization: token ?? '' },
                 body: { opening_cash: openingCash },
             })
             if (!response.success) throw new Error(response.errorMessage || response.errorDescription || 'Failed to open shift')
-            shift.value = response.response
+            await fetchCurrent() // POST /shifts doesn't return a summary — pull it fresh
             toast.add({ title: 'Shift opened', color: 'success' })
             return true
         } catch (error: any) {
@@ -56,7 +55,7 @@ export function useShift() {
 
         loading.value = true
         try {
-            const response = await $fetch<IResponse & { response: Shift }>(`/shifts/${shift.value.id}/close`, {
+            const response = await $fetch<IResponse & { response: import('~/types/models/shift.types').Shift }>(`/shifts/${shift.value.id}/close`, {
                 baseURL: baseUrl,
                 method: 'PATCH',
                 headers: { authorization: token ?? '' },

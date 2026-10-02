@@ -92,6 +92,22 @@
                     </div>
                 </div>
             </div>
+
+            <div v-if="order.payments?.length" class="space-y-3">
+                <h2 class="text-lg font-semibold">Payment</h2>
+                <div class="divide-y divide-default rounded-lg border border-default">
+                    <div v-for="payment in order.payments" :key="payment.id" class="flex flex-row items-center justify-between gap-3 px-4 py-3">
+                        <div>
+                            <p class="font-medium capitalize">{{ payment.method }}</p>
+                            <p class="text-xs text-muted">{{ formatDate(payment.paid_at, 'datetime') }}</p>
+                        </div>
+                        <div class="text-right text-sm">
+                            <p>Tendered: {{ formatCurrency(payment.amount_tendered) }}</p>
+                            <p class="text-muted">Change: {{ formatCurrency(payment.change) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div v-else class="max-w-3xl">

@@ -1,3 +1,5 @@
+import type { Payment } from './payment.types'
+
 export type OrderType = 'dine_in' | 'takeout'
 export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled'
 
@@ -19,7 +21,6 @@ export interface Order {
   uuid: string
   order_number: string
   order_type: OrderType
-  table_id: number | null
   status: OrderStatus
   subtotal: string
   discount: string
@@ -29,4 +30,5 @@ export interface Order {
   updated_at: string
   items: OrderItem[]
   cashier?: { id: number; first_name: string; last_name: string }
+  payments?: Payment[]
 }

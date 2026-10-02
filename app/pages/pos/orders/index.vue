@@ -27,11 +27,12 @@
             <div
                 v-for="order in filteredOrders"
                 :key="order.uuid"
-                class="rounded-lg border border-default bg-default p-4 flex flex-col gap-3"
+                class="rounded-lg border border-default bg-default p-4 flex flex-col gap-3 cursor-pointer"
+                @click="toggleExpand(order.uuid)"
             >
                 <div class="flex flex-row justify-between items-start">
                     <div>
-                        <NuxtLink :to="`/pos/orders/${order.uuid}`" class="text-lg font-semibold hover:underline">
+                        <NuxtLink :to="`/pos/orders/${order.uuid}`" class="text-lg font-semibold hover:underline" @click.stop>
                             {{ order.order_number }}
                         </NuxtLink>
                         <div class="flex items-center gap-1.5 text-sm text-muted">
@@ -44,13 +45,25 @@
                     <OrderStatusBadge :status="order.status"/>
                 </div>
 
-                <p class="text-sm line-clamp-2">
-                    {{ order.items.map((i) => `${i.quantity}× ${i.product.name}`).join(', ') }}
+                <!-- Collapsed: quick summary -->
+                <p v-if="expandedUuid !== order.uuid" class="text-sm line-clamp-2">
+                    {{ order.items.map((i) => `${i.quantity} \u00D7 ${i.product.name}`).join(', ') }}
                 </p>
+
+                <!-- Expanded: itemized breakdown + payment, if any -->
+                <div v-else class="space-y-2">
+                    <div v-for="item in order.items" :key="item.id" class="flex flex-row justify-between text-sm">
+                        <span>{{ item.quantity }}× {{ item.product.name }}</span>
+                        <span class="text-muted">{{ formatCurrency(item.subtotal) }}</span>
+                    </div>
+                    <div v-if="order.payments?.length" class="pt-2 border-t border-default text-sm text-muted capitalize">
+                        Paid via {{ order.payments[0]?.method }} · {{ formatDate(order.payments[0]?.paid_at, 'datetime') }}
+                    </div>
+                </div>
 
                 <div class="flex flex-row justify-between items-center pt-2 border-t border-default">
                     <p class="font-semibold">{{ formatCurrency(order.total) }}</p>
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row gap-2" @click.stop>
                         <UButton
                             v-if="canCancelOrder(order.status)"
                             label="Cancel"
@@ -64,9 +77,18 @@
                             v-if="nextOrderAction(order.status)"
                             :label="nextOrderAction(order.status)!.label"
                             :icon="nextOrderAction(order.status)!.icon"
+                            variant="outline"
                             size="sm"
                             :loading="updatingUuid === order.uuid"
                             @click="onAdvance(order)"
+                        />
+                        <UButton
+                            v-if="canPayOrder(order.status)"
+                            label="Pay"
+                            icon="lucide:banknote"
+                            color="success"
+                            size="sm"
+                            @click="openPayment(order)"
                         />
                     </div>
                 </div>
@@ -76,12 +98,13 @@
         <div v-else class="rounded-lg border border-default p-10 text-center text-muted">
             No orders found.
         </div>
-    </div>
+
         <UModal v-model:open="paymentModalOpen" title="Take Payment" :description="payingOrder ? `Order ${payingOrder.order_number}` : ''">
-        <template #body>
-            <OrderPaymentModal v-if="payingOrder" :order="payingOrder" @success="onPaid" @cancel="paymentModalOpen = false"/>
-        </template>
-    </UModal>
+            <template #body>
+                <OrderPaymentModal v-if="payingOrder" :order="payingOrder" @success="onPaid" @cancel="paymentModalOpen = false"/>
+            </template>
+        </UModal>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -108,11 +131,13 @@ const tabs: { value: Tab; label: string }[] = [
     { value: 'pending', label: 'Pending' },
     { value: 'preparing', label: 'Preparing' },
     { value: 'ready', label: 'Ready' },
+    { value: 'completed', label: 'Completed' },
     { value: 'cancelled', label: 'Cancelled' },
     { value: 'all', label: 'All' },
 ]
 
 const activeTab = ref<Tab>('active')
+const expandedUuid = ref<string | null>(null)
 
 const paymentModalOpen = ref(false)
 const payingOrder = ref<Order | null>(null)
@@ -141,6 +166,10 @@ function tabCount(tab: Tab) {
 }
 
 const filteredOrders = computed(() => orders.value.filter((o) => matchesTab(o, activeTab.value)))
+
+function toggleExpand(uuid: string) {
+    expandedUuid.value = expandedUuid.value === uuid ? null : uuid
+}
 
 async function onAdvance(order: Order) {
     const action = nextOrderAction(order.status)

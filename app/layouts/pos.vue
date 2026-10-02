@@ -80,11 +80,16 @@ const colorMode = useColorMode();
 const { data, signOut } = useAuth();
 const sidebarOpen = useSidebar();
 
-const items: NavigationMenuItem[] = [
-    { label: 'New Order', icon: 'lucide:shopping-cart', to: '/pos', exact: true },
-    { label: 'Orders', icon: 'lucide:receipt', to: '/pos/orders' },
-    
-]
+const items = computed<NavigationMenuItem[]>(() => {
+    const base: NavigationMenuItem[] = [
+        { label: 'New Order', icon: 'lucide:shopping-cart', to: '/pos', exact: true },
+        { label: 'Orders', icon: 'lucide:receipt', to: '/pos/orders' },
+    ]
+    if (data.value?.role === 'admin' || data.value?.role === 'manager') {
+        base.push({ label: 'Shift History', icon: 'lucide:history', to: '/pos/shifts' })
+    }
+    return base
+})
 
 const userItems = computed<DropdownMenuItem[][]>(() => [
     [
