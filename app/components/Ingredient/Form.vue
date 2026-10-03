@@ -64,7 +64,17 @@
         </UFormField>
 
         <UFormField label="Unit" name="unit" required>
-            <USelect v-model="state.unit" :items="unitOptions" placeholder="Select a unit" class="w-full" />
+            <USelect
+                v-model="state.unit"
+                :items="unitOptions"
+                value-key="value"
+                label-key="label"
+                placeholder="Select a unit"
+                class="w-full"
+            />
+            <template v-if="!unitOptions.length" #help>
+                <span class="text-warning">No units yet — add one under Inventory → Units first.</span>
+            </template>
         </UFormField>
 
         <div class="grid grid-cols-2 gap-4">
@@ -93,7 +103,8 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { Ingredient } from '~/types/models/ingredient.types'
-import type { IResponse } from '~/types/response'
+import type { Unit } from '~/types/models/unit.types'
+import type { IListResponse, IResponse } from '~/types/response'
 
 // mode: 'create' (no ingredient needed) | 'edit' (ingredient required, real form) |
 // 'view' (ingredient required, plain read-only display).
@@ -135,11 +146,22 @@ const isLowStock = computed(() => {
     return Number(props.ingredient.current_stock) <= Number(props.ingredient.reorder_level)
 })
 
-const unitOptions = ['kg', 'g', 'L', 'ml', 'pcs']
+// Units are managed dynamically under Inventory → Units — only active ones are offered here.
+const { data: units } = await useLazyFetch('/units', {
+    key: 'units-for-ingredient-form',
+    baseURL: baseUrl,
+    headers: { authorization: token ?? '' },
+    query: { active: 'true' },
+    transform: (data: IListResponse<Unit>) => data.response.rows,
+})
+
+const unitOptions = computed(() =>
+    (units.value ?? []).map((u) => ({ value: u.symbol, label: `${u.symbol} — ${u.name}` }))
+)
 
 const schema = z.object({
     name: z.string().min(1, 'Name is required').max(150, 'Max 150 characters'),
-    unit: z.enum(['kg', 'g', 'L', 'ml', 'pcs'], { error: 'Unit is required' }),
+    unit: z.string().min(1, 'Unit is required'),
     current_stock: z.coerce.number({ error: 'Current stock is required' }).nonnegative('Must be 0 or more'),
     reorder_level: z.coerce.number({ error: 'Reorder level is required' }).nonnegative('Must be 0 or more'),
 })
@@ -148,7 +170,7 @@ type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
     name: props.ingredient?.name ?? '',
-    unit: (props.ingredient?.unit as Schema['unit']) ?? 'pcs',
+    unit: props.ingredient?.unit ?? '',
     current_stock: props.ingredient ? Number(props.ingredient.current_stock) : 0,
     reorder_level: props.ingredient ? Number(props.ingredient.reorder_level) : 0,
 })
@@ -157,7 +179,7 @@ const state = reactive<Partial<Schema>>({
 watch(() => props.ingredient, (i) => {
     if (!i) return
     state.name = i.name
-    state.unit = i.unit as Schema['unit']
+    state.unit = i.unit
     state.current_stock = Number(i.current_stock)
     state.reorder_level = Number(i.reorder_level)
     file.value = null

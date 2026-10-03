@@ -5,6 +5,7 @@
         </div>
         <div class="flex flex-row justify-end gap-3 mb-3">
             <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" :loading="status === 'pending'" @click="refresh()"/>
+            <UButton icon="lucide:triangle-alert" label="Low Stock" variant="outline" color="error" to="/inventory/low-stock"/>
             <UButton icon="lucide:circle-plus" label="Add Ingredient" to="/inventory/ingredients/create"/>
         </div>
         <div>
@@ -114,8 +115,6 @@ const pagination: Pagination = reactive({
     total: 0
 })
 
-// Local filter shape — add an IngredientFilter type alongside ProductFilter in
-// ~/types/component if you'd rather keep this typed there instead.
 const filter = reactive({
     search: '',
     status: 'all' as 'all' | 'low' | 'ok'
@@ -185,7 +184,7 @@ function onEdit(ingredient: Ingredient) {
 
 async function onDelete(ingredient: Ingredient) {
     try {
-        await $fetch(`/ingredients/${ingredient.id}`, {
+        await $fetch(`/ingredients/${ingredient.uuid}`, {
             baseURL: baseUrl,
             method: 'DELETE',
             headers: { authorization: token ?? '' },
