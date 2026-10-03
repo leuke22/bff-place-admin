@@ -91,67 +91,73 @@ const items = computed<NavigationMenuItem[]>(() => {
     return base
 })
 
-const userItems = computed<DropdownMenuItem[][]>(() => [
-    [
-        { label: 'Profile', icon: 'i-lucide-user' },
-        { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
-    ],
-    [
-        { 
-            label: 'Navigate to',
-            icon: 'lucide:navigation',
+const userItems = computed<DropdownMenuItem[][]>(() => {
+    const accountItems: DropdownMenuItem[] = [
+        { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+    ]
+    if (data.value?.role === 'admin' || data.value?.role === 'manager') {
+        accountItems.push({ label: 'Settings', icon: 'i-lucide-settings', to: '/settings' })
+    }
+
+    return [
+        accountItems,
+        [
+            { 
+                label: 'Navigate to',
+                icon: 'lucide:navigation',
+                children: [
+                    {
+                        label: 'Home',
+                        icon: 'lucide:house',
+                        tot: '/'
+                    },
+                    { 
+                        label: 'Inventory', 
+                        icon: 'lucide:package',
+                        to: '/inventory' 
+                    }
+                ]
+            }
+        ],
+        [
+            {
+            label: 'Appearance',
+            icon: 'i-lucide-sun-moon',
             children: [
                 {
-                    label: 'Home',
-                    icon: 'lucide:house',
-                    tot: '/'
+                    label: 'Light',
+                    icon: 'i-lucide-sun',
+                    type: 'checkbox',
+                    checked: colorMode.value === 'light',
+                    onUpdateChecked(checked: boolean) {
+                        if (checked) colorMode.preference = 'light'
+                    },
+                    onSelect(e: Event) {
+                        e.preventDefault()
+                    }
                 },
-                { 
-                    label: 'Inventory', 
-                    icon: 'lucide:package',
-                    to: '/inventory' 
+                {
+                    label: 'Dark',
+                    icon: 'i-lucide-moon',
+                    type: 'checkbox',
+                    checked: colorMode.value === 'dark',
+                    onUpdateChecked(checked: boolean) {
+                        if (checked) colorMode.preference = 'dark'
+                    },
+                    onSelect(e: Event) {
+                        e.preventDefault()
+                    }
                 }
             ]
-        }
-    ],
-    [
-        {
-        label: 'Appearance',
-        icon: 'i-lucide-sun-moon',
-        children: [
+            }
+        ],
+        [
             {
-                label: 'Light',
-                icon: 'i-lucide-sun',
-                type: 'checkbox',
-                checked: colorMode.value === 'light',
-                onUpdateChecked(checked: boolean) {
-                    if (checked) colorMode.preference = 'light'
-                },
-                onSelect(e: Event) {
-                    e.preventDefault()
-                }
-            },
-            {
-                label: 'Dark',
-                icon: 'i-lucide-moon',
-                type: 'checkbox',
-                checked: colorMode.value === 'dark',
-                onUpdateChecked(checked: boolean) {
-                    if (checked) colorMode.preference = 'dark'
-                },
-                onSelect(e: Event) {
-                    e.preventDefault()
-                }
+                label: 'Log out',
+                icon: 'i-lucide-log-out',
+                onSelect: () => signOut({ redirect: true, callbackUrl: '/login' })
             }
         ]
-        }
-    ],
-    [
-        {
-            label: 'Log out',
-            icon: 'i-lucide-log-out',
-            onSelect: () => signOut({ redirect: true, callbackUrl: '/login' })
-        }
     ]
-])
+})
 </script>
