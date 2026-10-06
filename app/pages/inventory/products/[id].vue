@@ -10,10 +10,8 @@
             <UButton icon="lucide:arrow-left" label="Back to Products" variant="ghost" color="neutral" to="/inventory/products"/>
         </div>
 
-        <div v-if="product" class="w-full space-y-8 flex flex-row gap-10">
-            <ProductForm class="flex-2" :mode="mode" :product="product" @success="onSuccess" @cancel="onCancel"/>
-
-            <ProductRecipe class="flex-1" :product-id="product.id" :mode="mode === 'edit' ? 'edit' : 'view'"/>
+        <div v-if="product" class="max-w-2xl">
+            <ProductForm :mode="mode" :product="product" @success="onSuccess" @cancel="onCancel"/>
         </div>
 
         <div v-else class="max-w-2xl">
@@ -36,9 +34,6 @@ definePageMeta({
 const route = useRoute()
 const { baseUrl, token } = useAPI()
 
-// Plain ref, not computed off the route — computed() has no setter, which is why
-// clicking "Edit" wasn't doing anything before. ?isEdit=true still seeds the initial
-// mode if someone lands here directly on a deep link, but after that it's just local state.
 const mode = ref<'view' | 'edit'>(route.query.isEdit === 'true' ? 'edit' : 'view')
 
 const fetchProduct = () => $fetch<IResponse & { response: Product }>(`/products/${route.params.id}`, {

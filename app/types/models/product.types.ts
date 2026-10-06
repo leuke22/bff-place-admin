@@ -1,4 +1,5 @@
 import type { Category } from "./category.types"
+import type { RecipeItem } from "./recipe.types"
 
 export interface Product {
   id: number
@@ -11,6 +12,7 @@ export interface Product {
   is_active: boolean
 
   category: Category
+  ingredients?: RecipeItem[]
 
   created_at: string
   updated_at: string
@@ -19,7 +21,7 @@ export interface Product {
 
 export type CreateProduct = Omit<
   Product,
-  'id' | 'uuid' | 'created_at' | 'updated_at' | 'deleted_at' | 'category'
+  'id' | 'uuid' | 'created_at' | 'updated_at' | 'deleted_at' | 'category' | 'ingredients'
 >
 
 export type UpdateProduct = Partial<CreateProduct>

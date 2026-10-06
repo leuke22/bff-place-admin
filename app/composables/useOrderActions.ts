@@ -2,14 +2,14 @@ import type { Order, OrderStatus, OrderType } from '~/types/models/order.types'
 import type { IResponse } from '~/types/response'
 
 export interface OrderAction {
-    status: 'preparing' | 'ready'
+    status: 'ready' | 'completed'
     label: string
     icon: string
 }
 
 export function nextOrderAction(status: OrderStatus): OrderAction | null {
-    if (status === 'pending') return { status: 'preparing', label: 'Start Preparing', icon: 'lucide:chef-hat' }
     if (status === 'preparing') return { status: 'ready', label: 'Mark as Ready', icon: 'lucide:bell-ring' }
+    if (status === 'ready') return { status: 'completed', label: 'Complete Order', icon: 'lucide:check-check' }
     return null
 }
 
@@ -17,8 +17,9 @@ export function canCancelOrder(status: OrderStatus) {
     return status === 'pending' || status === 'preparing' || status === 'ready'
 }
 
+// Only a freshly-placed order can be paid — payment is what kicks off preparing.
 export function canPayOrder(status: OrderStatus) {
-    return status === 'pending' || status === 'preparing' || status === 'ready'
+    return status === 'pending'
 }
 
 export function orderTypeLabel(type: OrderType) {
@@ -30,8 +31,7 @@ export function useOrderActions() {
     const toast = useToast()
     const updatingUuid = ref<string | null>(null)
 
-    // Returns true when the change went through.
-    async function updateStatus(order: Order, status: 'preparing' | 'ready' | 'cancelled') {
+    async function updateStatus(order: Order, status: 'ready' | 'completed' | 'cancelled') {
         updatingUuid.value = order.uuid
         try {
             const response = await $fetch<IResponse & { response: Order }>(`/orders/${order.uuid}/status`, {
