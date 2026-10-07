@@ -1,21 +1,15 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { status, getSession } = useAuth()
+  const { status, getSession, refresh } = useAuth()
+  const loginRoute = `/login?redirect=${encodeURIComponent(to.fullPath)}`
 
   if (status.value !== 'authenticated') {
-    await getSession()
-  }
-
-  if (status.value !== 'authenticated') {
-    // access token expired or missing — try a manual refresh before giving up
     try {
-      await $fetch('/api/auth/refresh', { method: 'POST' })
-      await getSession()
+      await refresh()        // gets a new access token and reloads the session
     } catch {
-      // refresh genuinely failed (refresh_token also expired/invalid) — fall through
+      return navigateTo(loginRoute)
     }
   }
 
-  if (status.value !== 'authenticated') {
-    return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
-  }
+  if (status.value !== 'authenticated') await getSession()
+  if (status.value !== 'authenticated') return navigateTo(loginRoute)
 })

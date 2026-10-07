@@ -70,15 +70,17 @@ export default defineNuxtConfig({
         signInResponseTokenPointer: '/access_token',
         type: 'Bearer',
         headerName: 'Authorization',
-        maxAgeInSeconds: 60 * 30
+        maxAgeInSeconds: 60 * 15
       },
       refresh: {
-        isEnabled: false,
+        isEnabled: true,
         endpoint: { path: '/refresh', method: 'post' },
         refreshOnlyToken: true,
         token: {
+          signInResponseRefreshTokenPointer: '/refreshToken',
           refreshResponseTokenPointer: '/access_token',
-          signInResponseRefreshTokenPointer: '/refreshToken'
+          refreshRequestTokenPointer: '/refreshToken',
+          maxAgeInSeconds: 60 * 60 * 24 * 7
         }
       },
       session: {
@@ -88,15 +90,14 @@ export default defineNuxtConfig({
           first_name: 'string',
           last_name: 'string',
           email: 'string',
-          avatar  : 'string',
-          role: 'string'
+          avatar: 'string'
         },
         dataResponsePointer: '/user'
-      },
+      }
     },
     sessionRefresh: {
-      enablePeriodically: false,
-      enableOnWindowFocus: false
+      enablePeriodically: 1000 * 60 * 10,
+      enableOnWindowFocus: true
     }
   }
 })
