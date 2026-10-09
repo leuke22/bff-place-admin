@@ -14,6 +14,7 @@ export interface OrderItem {
   notes: string | null
   created_at: string
   product: { id: number; name: string; image?: string | null }
+  variant?: { id: number; name: string } | null
 }
 
 export interface Order {
