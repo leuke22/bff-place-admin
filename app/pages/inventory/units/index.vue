@@ -61,7 +61,7 @@ const { data: units, refresh, status } = useAsyncData(
     'units-list',
     () => $fetch<IListResponse<Unit>>('/units', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
     }),
     {
         transform: (data: IListResponse<Unit>) => data.response.rows,
@@ -94,7 +94,7 @@ async function onDelete(unit: Unit) {
         await $fetch(`/units/${unit.uuid}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Unit deleted', color: 'success' })
         refresh()

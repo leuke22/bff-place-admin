@@ -140,7 +140,7 @@ function isLowStock(ingredient: Ingredient) {
 
 const fetchIngredients = () => $fetch<IListResponse<Ingredient>>('/ingredients', {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     query: {
         low_stock: filter.status === 'low' ? 'true' : undefined,
     }
@@ -187,7 +187,7 @@ async function onDelete(ingredient: Ingredient) {
         await $fetch(`/ingredients/${ingredient.uuid}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Ingredient deleted', color: 'success' })
         refresh()

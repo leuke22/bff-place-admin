@@ -84,9 +84,9 @@ function getItems(state: 'collapsed' | 'expanded') {
         { label: 'Dashboard', icon: 'lucide:layout-dashboard', to: '/inventory' },
         { label: 'Categories', icon: 'lucide:folder-closed', to: '/inventory/categories' },
         { label: 'Products', icon: 'lucide:box', to: '/inventory/products' },
-        { label: 'Recipes', icon: 'lucide:chef-hat', to: '/inventory/recipes' },
         { label: 'Units', icon: 'lucide:ruler', to: '/inventory/units' },
         { label: 'Ingredients', icon: 'lucide:wheat', to: '/inventory/ingredients' },
+        { label: 'Recipes', icon: 'lucide:chef-hat', to: '/inventory/recipes' },
         { label: 'Low Stock', icon: 'lucide:triangle-alert', to: '/inventory/low-stock' },
         { label: 'Suppliers', icon: 'lucide:truck', to: '/inventory/suppliers' },
         { label: 'Purchase Orders', icon: 'lucide:clipboard-list', to: '/inventory/purchase-orders' }

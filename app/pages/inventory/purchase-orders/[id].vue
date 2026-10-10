@@ -100,7 +100,7 @@ const toast = useToast()
 
 const fetchPurchaseOrder = () => $fetch<IResponse & { response: PurchaseOrder }>(`/purchase-orders/${route.params.id}`, {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' }
+    headers: { authorization: token.value ?? '' }
 })
 
 const { data: purchaseOrder, refresh } = await useAsyncData(
@@ -124,7 +124,7 @@ async function runAction(action: 'order' | 'receive' | 'cancel', successMessage:
         const response = await $fetch<IResponse & { response: PurchaseOrder }>(`/purchase-orders/${route.params.id}/${action}`, {
             baseURL: baseUrl,
             method: 'PATCH',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
 
         if (!response.success) {

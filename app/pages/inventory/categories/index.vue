@@ -28,7 +28,7 @@
                 </template>
                 <template #grid-footer>
                     <div class="flex flex-row justify-end">
-                        <UPagination v-model:page="pagination.page" :sibling-count="2" :total="pagination.total"/>
+                        <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                     </div>
                 </template>
                 <template #table>
@@ -90,7 +90,7 @@
                         </UTable>
 
                         <div class="flex justify-end border-t border-default pt-4 px-4">
-                            <UPagination v-model:page="pagination.page" :sibling-count="2" :total="pagination.total"/>
+                            <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                         </div>
                     </div>
                 </template>
@@ -123,7 +123,7 @@ const view = ref<ValueType>('grid');
 
 const pagination: Pagination = reactive({
     page: 1,
-    limit: 8,
+    limit: 6,
     total: 0
 })
 
@@ -150,7 +150,7 @@ const categoryColumn: TableColumn<CategoryProductCount>[] = [
 
 const fetchCategories = () => $fetch<IListResponse<CategoryProductCount>>('/categories/product-count', {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     query: {
         page: pagination.page,
         limit: pagination.limit,
@@ -185,7 +185,7 @@ async function onDelete(category: CategoryProductCount) {
         await $fetch(`/categories/${category.id}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Category deleted', color: 'success' })
         refresh()
@@ -197,4 +197,9 @@ async function onDelete(category: CategoryProductCount) {
         })
     }
 }
+
+watch([() => filter.search, () => filter.status], () => {
+    pagination.page = 1
+})
+
 </script>

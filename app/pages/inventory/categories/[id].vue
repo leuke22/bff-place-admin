@@ -41,7 +41,7 @@ const mode = ref<'view' | 'edit'>(route.query.isEdit === 'true' ? 'edit' : 'view
 
 const fetchCategory = () => $fetch<IResponse & { response: Category }>(`/categories/${route.params.id}`, {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' }
+    headers: { authorization: token.value ?? '' }
 })
 
 const { data: category } = await useAsyncData(
@@ -53,7 +53,7 @@ const { data: category } = await useAsyncData(
 )
 
 const items = computed<BreadcrumbItem[]>(() => [
-    { label: 'Categories', to: '/categories' },
+    { label: 'Categories', to: '/inventory/categories' },
     { label: category.value?.name ?? 'Category', to: route.fullPath }
 ])
 

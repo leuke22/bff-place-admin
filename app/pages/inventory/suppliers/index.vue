@@ -125,7 +125,7 @@ const supplierColumn: TableColumn<Supplier>[] = [
 
 const fetchSuppliers = () => $fetch<IListResponse<Supplier>>('/suppliers', {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
 });
 
 const { data: suppliers, refresh, status } = useAsyncData(
@@ -168,7 +168,7 @@ async function onDelete(supplier: Supplier) {
         await $fetch(`/suppliers/${supplier.uuid}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Supplier deleted', color: 'success' })
         refresh()

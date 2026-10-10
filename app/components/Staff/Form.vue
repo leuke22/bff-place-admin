@@ -101,7 +101,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
             ? await $fetch<IResponse & { response: Staff }>(`/staff/${props.staff.uuid}`, {
                 baseURL: baseUrl,
                 method: 'PATCH',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: {
                     first_name: event.data.first_name,
                     middle_name: event.data.middle_name || undefined,
@@ -113,7 +113,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
             : await $fetch<IResponse & { response: Staff }>('/staff', {
                 baseURL: baseUrl,
                 method: 'POST',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: event.data,
             })
 

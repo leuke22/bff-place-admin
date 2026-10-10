@@ -149,7 +149,7 @@ const { data: order, refresh } = await useAsyncData(
     `pos-order-${route.params.id}`,
     () => $fetch<IResponse & { response: Order }>(`/orders/${route.params.id}`, {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
     }),
     {
         transform: (data: IResponse & { response: Order }) => data.response

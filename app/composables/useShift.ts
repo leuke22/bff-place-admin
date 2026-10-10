@@ -14,7 +14,7 @@ export function useShift() {
         try {
             const response = await $fetch<IResponse & { response: ShiftWithSummary }>('/shifts/current', {
                 baseURL: baseUrl,
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
             })
             shift.value = response.success ? response.response : null
         } catch {
@@ -31,7 +31,7 @@ export function useShift() {
             const response = await $fetch<IResponse & { response: ShiftWithSummary }>('/shifts', {
                 baseURL: baseUrl,
                 method: 'POST',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: { opening_cash: openingCash },
             })
             if (!response.success) throw new Error(response.errorMessage || response.errorDescription || 'Failed to open shift')
@@ -58,7 +58,7 @@ export function useShift() {
             const response = await $fetch<IResponse & { response: import('~/types/models/shift.types').Shift }>(`/shifts/${shift.value.id}/close`, {
                 baseURL: baseUrl,
                 method: 'PATCH',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: { closing_cash: closingCash },
             })
             if (!response.success) throw new Error(response.errorMessage || response.errorDescription || 'Failed to close shift')

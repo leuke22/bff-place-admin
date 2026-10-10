@@ -69,13 +69,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             ? await $fetch<IResponse & { response: Unit }>(`/units/${props.unit.uuid}`, {
                 baseURL: baseUrl,
                 method: 'PUT',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: event.data,
             })
             : await $fetch<IResponse & { response: Unit }>('/units', {
                 baseURL: baseUrl,
                 method: 'POST',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: event.data,
             })
 

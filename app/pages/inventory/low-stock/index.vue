@@ -48,7 +48,7 @@ const { data: ingredients, refresh, status } = useAsyncData(
     'low-stock-ingredients',
     () => $fetch<IListResponse<Ingredient>>('/ingredients', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
         query: { low_stock: 'true' },
     }),
     {
@@ -70,7 +70,7 @@ async function onDelete(ingredient: Ingredient) {
         await $fetch(`/ingredients/${ingredient.uuid}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Ingredient deleted', color: 'success' })
         refresh()

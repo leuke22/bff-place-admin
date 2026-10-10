@@ -62,7 +62,7 @@ const { data: shifts, refresh, status } = useAsyncData(
     'shift-history',
     () => $fetch<IListResponse<Shift>>('/shifts', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
     }),
     {
         transform: (data: IListResponse<Shift>) => data.response.rows,

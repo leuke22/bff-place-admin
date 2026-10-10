@@ -47,7 +47,15 @@
                                 </div>
                             </template>
                             <template #category-cell="{ row }">
-                                <UBadge :label="row.original.category.name" color="secondary" variant="subtle"/>
+                                <div class="flex flex-wrap gap-1">
+                                    <UBadge
+                                        v-for="category in row.original.categories"
+                                        :key="category.id"
+                                        :label="category.name"
+                                        color="secondary"
+                                        variant="subtle"
+                                    />
+                                </div>
                             </template>
                             <template #price-cell="{ row }">
                                 <p>{{ formatCurrency(row.original.price) }}</p>
@@ -127,11 +135,10 @@ const productColumn: TableColumn<Product>[] = [
 
 const fetchProducts = () => $fetch<IListResponse<Product>>('/products', {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     query: {
         page: 1,
         limit: 10,
-        includes: 'category'
     }
 });
 
@@ -150,7 +157,7 @@ const { data: products, refresh } = useAsyncData(
 const { data: categories } = await useLazyFetch('/categories', {
     key: 'categories-filter', 
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<Category>) => {
         return [
             { value: 0, label: 'All Categories' },

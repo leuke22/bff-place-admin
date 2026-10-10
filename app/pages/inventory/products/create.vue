@@ -20,15 +20,15 @@ definePageMeta({
 const router = useRouter()
 
 const items = ref<BreadcrumbItem[]>([
-    { label: 'Products', to: '/products' },
-    { label: 'Create', to: '/products/create' }
+    { label: 'Products', to: '/inventory/products' },
+    { label: 'Create', to: '/inventory/products/create' }
 ])
 
 function onSuccess(product: Product) {
-    router.push(`/products/${product.uuid}`)
+    router.push(`/inventory/products/${product.uuid}`)
 }
 
 function onCancel() {
-    router.push('/products')
+    router.push('/inventory/products')
 }
 </script>

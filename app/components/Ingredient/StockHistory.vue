@@ -70,7 +70,7 @@ const toast = useToast()
 
 const fetchMovements = () => $fetch<IListResponse<StockMovement>>('/stock-movements', {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     query: { ingredient_id: props.ingredientId },
 })
 
@@ -123,7 +123,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         const response = await $fetch<IResponse & { response: StockMovementResult }>('/stock-movements', {
             baseURL: baseUrl,
             method: 'POST',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 ingredient_id: props.ingredientId,
                 type: event.data.type,

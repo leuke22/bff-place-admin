@@ -127,7 +127,7 @@ async function onSaveInfo(event: FormSubmitEvent<z.output<typeof infoSchema>>) {
         const response = await $fetch<{ user: ProfileUser }>('/auth/me', {
             baseURL: baseUrl,
             method: 'PATCH',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 first_name: event.data.first_name,
                 middle_name: event.data.middle_name || undefined,
@@ -176,7 +176,7 @@ async function onChangePassword(event: FormSubmitEvent<z.output<typeof passwordS
         await $fetch('/auth/me/password', {
             baseURL: baseUrl,
             method: 'PATCH',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 current_password: event.data.current_password,
                 new_password: event.data.new_password,

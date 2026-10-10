@@ -137,7 +137,7 @@ const orderColumn: TableColumn<PurchaseOrder>[] = [
 
 const fetchOrders = () => $fetch<IListResponse<PurchaseOrder>>('/purchase-orders', {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
 });
 
 const { data: orders, refresh, status } = useAsyncData(

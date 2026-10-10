@@ -159,7 +159,7 @@ const items = ref<BreadcrumbItem[]>([])
 const { data: ingredients } = await useLazyFetch('/ingredients', {
     key: 'dashboard-ingredients',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<Ingredient>) => data.response.rows,
     default: () => [] as Ingredient[],
 })
@@ -171,7 +171,7 @@ const lowStockIngredients = computed(() =>
 const { data: purchaseOrders } = await useLazyFetch('/purchase-orders', {
     key: 'dashboard-purchase-orders',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<PurchaseOrder>) => data.response.rows,
     default: () => [] as PurchaseOrder[],
 })
@@ -183,7 +183,7 @@ const openPurchaseOrders = computed(() =>
 const { data: movements } = await useLazyFetch('/stock-movements', {
     key: 'dashboard-stock-movements',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<StockMovement>) => data.response.rows,
     default: () => [] as StockMovement[],
 })
@@ -193,7 +193,7 @@ const recentMovements = computed(() => movements.value.slice(0, 8))
 const { data: productCount } = await useLazyFetch('/products', {
     key: 'dashboard-product-count',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     query: { limit: 1 },
     transform: (data: IListResponse<unknown>) => data.response.count,
     default: () => 0,

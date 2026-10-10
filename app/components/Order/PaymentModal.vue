@@ -112,7 +112,7 @@ async function onSubmit() {
         const response = await $fetch<IResponse & { response: PaymentResult }>(`/orders/${props.order.uuid}/payment`, {
             baseURL: baseUrl,
             method: 'POST',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 method: method.value,
                 amount_tendered: amountTendered.value,

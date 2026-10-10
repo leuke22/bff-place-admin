@@ -16,7 +16,7 @@
                     </div>
                     <div>
                         <p class="font-medium">{{ product.name }}</p>
-                        <p class="text-xs text-muted">{{ product.category?.name }}</p>
+                        <p class="text-xs text-muted">{{ product.categories.map(category => category.name).join(', ') || '—' }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -54,8 +54,8 @@ const { data: products, refresh, status } = useAsyncData(
     'recipes-product-list',
     () => $fetch<IListResponse<Product>>('/products', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
-        query: { limit: 100, includes: 'category,ingredients' },
+        headers: { authorization: token.value ?? '' },
+        query: { limit: 100, includes: 'ingredients' },
     }),
     {
         transform: (data: IListResponse<Product>) => data.response.rows,

@@ -45,7 +45,7 @@ const mode = ref<'view' | 'edit'>(route.query.isEdit === 'true' ? 'edit' : 'view
 
 const fetchIngredient = () => $fetch<IResponse & { response: Ingredient }>(`/ingredients/${route.params.id}`, {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' }
+    headers: { authorization: token.value ?? '' }
 })
 
 const { data: ingredient } = await useAsyncData(

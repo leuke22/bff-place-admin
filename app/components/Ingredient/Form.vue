@@ -150,7 +150,7 @@ const isLowStock = computed(() => {
 const { data: units } = await useLazyFetch('/units', {
     key: 'units-for-ingredient-form',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     query: { active: 'true' },
     transform: (data: IListResponse<Unit>) => data.response.rows,
 })
@@ -217,13 +217,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             ? await $fetch<IResponse & { response: Ingredient }>(`/ingredients/${props.ingredient.uuid}`, {
                 baseURL: baseUrl,
                 method: 'PATCH',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body,
             })
             : await $fetch<IResponse & { response: Ingredient }>('/ingredients', {
                 baseURL: baseUrl,
                 method: 'POST',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body,
             })
 

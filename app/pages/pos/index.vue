@@ -178,8 +178,8 @@ const { data: products, refresh, status } = useAsyncData(
     'pos-products',
     () => $fetch<IListResponse<Product>>('/products', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
-        query: { limit: 100, includes: 'category' },
+        headers: { authorization: token.value ?? '' },
+        query: { limit: 100 },
     }),
     {
         transform: (data: IListResponse<Product>) => data.response.rows.filter((p) => p.is_active),
@@ -191,8 +191,11 @@ const { data: products, refresh, status } = useAsyncData(
 const categories = computed(() => {
     const map = new Map<number, Category>()
     for (const product of products.value) {
-        if (product.category && !map.has(product.category.id)) {
-            map.set(product.category.id, product.category)
+        const productCategories = product.categories
+        for (const category of productCategories) {
+            if (category && !map.has(category.id)) {
+                map.set(category.id, category)
+            }
         }
     }
     return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
@@ -202,7 +205,10 @@ const filteredProducts = computed(() => {
     let list = products.value
 
     if (selectedCategory.value) {
-        list = list.filter((p) => p.category_id === selectedCategory.value)
+        list = list.filter((product) =>
+            product.categories
+                .some((category) => category?.id === selectedCategory.value),
+        )
     }
 
     if (search.value) {
@@ -223,7 +229,7 @@ async function onPlaceOrder() {
         const response = await $fetch<IResponse & { response: Order }>('/orders', {
             baseURL: baseUrl,
             method: 'POST',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 order_type: orderType.value,
                 discount: discountAmount.value,

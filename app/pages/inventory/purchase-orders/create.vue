@@ -53,7 +53,7 @@ const submitting = ref(false)
 const { data: suppliers } = await useLazyFetch('/suppliers', {
     key: 'suppliers-for-po',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<Supplier>) => data.response.rows.filter((s) => s.is_active),
 })
 
@@ -75,7 +75,7 @@ async function onSubmit() {
         const response = await $fetch<IResponse & { response: PurchaseOrder }>('/purchase-orders', {
             baseURL: baseUrl,
             method: 'POST',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 supplier_id: supplierId.value,
                 items: orderItems.value,

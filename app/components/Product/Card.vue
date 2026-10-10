@@ -12,8 +12,16 @@
             <h1>{{ product.name }}</h1>
             <p class="dark:text-gray-400 text-gray-700 text-sm">{{ product.description }}</p>
             <p>{{ formatCurrency(product.price) }}</p>
-            <div class="flex flex-row justify-between">
-                <UBadge :label="product.category.name" variant="subtle" :style="{ backgroundColor: product.category.color, color: 'white' }"/>
+            <div class="flex flex-row justify-between gap-2">
+                <div class="flex flex-wrap gap-1">
+                    <UBadge
+                        v-for="category in product.categories"
+                        :key="category.id"
+                        :label="category.name"
+                        variant="subtle"
+                        :style="{ backgroundColor: category.color, color: 'white' }"
+                    />
+                </div>
                 <UDropdownMenu :items="cardItems">
                     <UButton icon="lucide:more-horizontal" variant="ghost"/>
                 </UDropdownMenu>

@@ -66,16 +66,58 @@
 
         <div class="grid grid-cols-2 gap-4">
             <UFormField label="Icon" name="icon" required>
-                <USelect
-                    v-model="state.icon"
-                    :items="iconOptions"
-                    placeholder="Select an icon"
-                    class="w-full"
-                >
-                    <template #leading>
-                        <UIcon :name="state.icon ?? 'lucide:shapes'" />
+                <UPopover v-model:open="iconPickerOpen">
+                    <UButton color="neutral" variant="outline" class="w-full justify-start">
+                        <UIcon :name="state.icon ?? 'lucide:shapes'" class="size-4" />
+                        <span class="truncate">{{ state.icon ?? 'Select an icon' }}</span>
+                    </UButton>
+
+                    <template #content>
+                        <div class="w-[min(34rem,calc(100vw-2rem))] space-y-3 p-3">
+                            <UInput
+                                v-model="iconSearch"
+                                icon="lucide:search"
+                                placeholder="Search all Iconify icons"
+                                class="w-full"
+                            />
+
+                            <div v-if="iconSearchPending" class="flex h-28 items-center justify-center text-sm text-muted">
+                                Searching icons...
+                            </div>
+                            <p v-else-if="iconSearchError" class="py-6 text-center text-sm text-error">
+                                Icon search is unavailable. Try again in a moment.
+                            </p>
+                            <p v-else-if="!iconResults.length" class="py-6 text-center text-sm text-muted">
+                                No icons found.
+                            </p>
+                            <div v-else class="max-h-72 overflow-y-auto">
+                                <div class="grid grid-cols-5 gap-1 sm:grid-cols-7">
+                                    <UTooltip v-for="icon in iconResults" :key="icon" :text="icon">
+                                        <UButton
+                                            :icon="icon"
+                                            :aria-label="icon"
+                                            :color="state.icon === icon ? 'primary' : 'neutral'"
+                                            :variant="state.icon === icon ? 'solid' : 'ghost'"
+                                            class="aspect-square w-full justify-center p-0"
+                                            @click="selectIcon(icon)"
+                                        />
+                                    </UTooltip>
+                                </div>
+                            </div>
+
+                            <div v-if="iconResults.length === 64 && !iconSearchPending" class="flex justify-center border-t border-default pt-2">
+                                <UButton
+                                    label="Load more matches"
+                                    color="neutral"
+                                    variant="link"
+                                    size="sm"
+                                    :loading="iconSearchPendingMore"
+                                    @click="loadMoreIcons"
+                                />
+                            </div>
+                        </div>
                     </template>
-                </USelect>
+                </UPopover>
             </UFormField>
 
             <UFormField label="Color" name="color" required>
@@ -164,18 +206,56 @@ watch(file, (newFile, oldFile) => {
     imagePreviewUrl.value = newFile ? URL.createObjectURL(newFile) : (props.category?.image ?? null)
 })
 
-// Keep the picker small and food-service relevant; extend freely.
-const iconOptions = [
-    { value: 'lucide:beef', label: 'Burgers' },
-    { value: 'lucide:pizza', label: 'Pizza' },
-    { value: 'lucide:utensils', label: 'Sides' },
-    { value: 'lucide:cup-soda', label: 'Drinks' },
-    { value: 'lucide:coffee', label: 'Coffee' },
-    { value: 'lucide:cake-slice', label: 'Desserts' },
-    { value: 'lucide:soup', label: 'Sauces' },
-    { value: 'lucide:egg-fried', label: 'Breakfast' },
-    { value: 'lucide:shapes', label: 'Other' },
-]
+const iconPickerOpen = ref(false)
+const iconSearch = ref('food')
+const iconResults = ref<string[]>([])
+const iconSearchPending = ref(false)
+const iconSearchPendingMore = ref(false)
+const iconSearchError = ref(false)
+let iconSearchTimer: ReturnType<typeof setTimeout> | undefined
+let iconSearchRequest = 0
+
+watch(iconSearch, () => {
+    if (iconSearchTimer) clearTimeout(iconSearchTimer)
+    iconSearchTimer = setTimeout(() => searchIcons(), 250)
+}, { immediate: true })
+
+async function searchIcons(limit = 64) {
+    const query = iconSearch.value.trim()
+    const requestId = ++iconSearchRequest
+    if (!query) {
+        iconResults.value = []
+        iconSearchError.value = false
+        return
+    }
+
+    iconSearchPending.value = limit === 64
+    iconSearchPendingMore.value = limit > 64
+    iconSearchError.value = false
+
+    try {
+        const response = await $fetch<{ icons: string[] }>('/api/iconify/search', {
+            query: { query, limit },
+        })
+        if (requestId === iconSearchRequest) iconResults.value = response.icons
+    } catch {
+        if (requestId === iconSearchRequest) iconSearchError.value = true
+    } finally {
+        if (requestId === iconSearchRequest) {
+            iconSearchPending.value = false
+            iconSearchPendingMore.value = false
+        }
+    }
+}
+
+function loadMoreIcons() {
+    searchIcons(999)
+}
+
+function selectIcon(icon: string) {
+    state.icon = icon
+    iconPickerOpen.value = false
+}
 
 const schema = z.object({
     name: z.string().min(1, 'Name is required').max(150, 'Max 150 characters'),
@@ -237,13 +317,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             ? await $fetch<IResponse & { response: Category }>(`/categories/${props.category.uuid}`, {
                 baseURL: baseUrl,
                 method: 'PUT',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body,
             })
             : await $fetch<IResponse & { response: Category }>('/categories', {
                 baseURL: baseUrl,
                 method: 'POST',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body,
             })
 

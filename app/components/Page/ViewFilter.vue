@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-row justify-between items-center">
         <div>
-            <UInput icon="i-lucide-search" variant="outline" :placeholder />
+            <UInput v-model="search" icon="i-lucide-search" variant="outline" :placeholder />
         </div>
         <div class="flex flex-row gap-2">
             <slot name="filter"/>

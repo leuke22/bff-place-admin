@@ -14,7 +14,7 @@ const route = useRoute()
 const { baseUrl, token } = useAPI()
 
 const { data: po } = await useAsyncData(`po-print-${route.params.id}`,
-  () => $fetch<any>(`/purchase-orders/${route.params.id}`, { baseURL: baseUrl, headers: { authorization: token ?? '' } }),
+  () => $fetch<any>(`/purchase-orders/${route.params.id}`, { baseURL: baseUrl, headers: { authorization: token.value ?? '' } }),
   { transform: (d: any) => d.response })
 
 const print = () => window.print()

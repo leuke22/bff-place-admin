@@ -116,7 +116,7 @@ const { data: shift } = await useAsyncData(
     `shift-${route.params.id}`,
     () => $fetch<IResponse & { response: ShiftDetail }>(`/shifts/${route.params.id}`, {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
     }),
     {
         transform: (data: IResponse & { response: ShiftDetail }) => data.response

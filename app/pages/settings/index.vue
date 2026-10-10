@@ -83,7 +83,7 @@ const { data: staff, refresh, status } = useAsyncData(
     'staff-list',
     () => $fetch<IListResponse<Staff>>('/staff', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
     }),
     {
         transform: (data: IListResponse<Staff>) => data.response.rows,
@@ -131,7 +131,7 @@ async function onDelete(member: Staff) {
         await $fetch(`/staff/${member.uuid}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Staff member removed', color: 'success' })
         refresh()

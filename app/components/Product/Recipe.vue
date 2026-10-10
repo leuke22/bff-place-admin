@@ -101,7 +101,7 @@ const toast = useToast()
 // ---- recipe list ----
 const fetchRecipe = () => $fetch<IListResponse<RecipeItem>>(`/products/${props.productId}/ingredients`, {
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
 })
 
 const { data: recipe, refresh, status } = useAsyncData(
@@ -117,7 +117,7 @@ const { data: recipe, refresh, status } = useAsyncData(
 const { data: allIngredients } = await useLazyFetch('/ingredients', {
     key: 'ingredients-for-recipe',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     immediate: isEditMode.value,
     transform: (data: IListResponse<Ingredient>) => data.response.rows,
 })
@@ -145,7 +145,7 @@ async function onAdd() {
         const response = await $fetch<IResponse & { response: RecipeItem }>(`/products/${props.productId}/ingredients`, {
             baseURL: baseUrl,
             method: 'POST',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: {
                 ingredient_id: newItem.ingredient_id,
                 quantity_used: Number(newItem.quantity_used),
@@ -194,7 +194,7 @@ async function onSaveEdit(item: RecipeItem) {
         const response = await $fetch<IResponse & { response: RecipeItem }>(`/products/${props.productId}/ingredients/${item.ingredient_id}`, {
             baseURL: baseUrl,
             method: 'PATCH',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
             body: { quantity_used: Number(editQuantity.value) },
         })
 
@@ -225,7 +225,7 @@ async function onRemove(item: RecipeItem) {
         await $fetch(`/products/${props.productId}/ingredients/${item.ingredient_id}`, {
             baseURL: baseUrl,
             method: 'DELETE',
-            headers: { authorization: token ?? '' },
+            headers: { authorization: token.value ?? '' },
         })
         toast.add({ title: 'Ingredient removed from recipe', color: 'success' })
         await refresh()

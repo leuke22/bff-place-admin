@@ -89,8 +89,10 @@ export default defineNuxtConfig({
           uuid: 'string',
           first_name: 'string',
           last_name: 'string',
+          middle_name: 'string',
           email: 'string',
-          avatar: 'string'
+          avatar: 'string',
+          role: 'string'
         },
         dataResponsePointer: '/user'
       }

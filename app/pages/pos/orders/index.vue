@@ -146,7 +146,7 @@ const { data: orders, refresh, status } = useAsyncData(
     'pos-orders',
     () => $fetch<IListResponse<Order>>('/orders', {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
         query: { limit: 100 },
     }),
     {

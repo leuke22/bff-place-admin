@@ -37,7 +37,7 @@ export function useOrderActions() {
             const response = await $fetch<IResponse & { response: Order }>(`/orders/${order.uuid}/status`, {
                 baseURL: baseUrl,
                 method: 'PATCH',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body: { status },
             })
 

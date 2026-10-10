@@ -11,7 +11,7 @@
                 </div>
                 <div>
                     <p class="font-medium">{{ product.name }}</p>
-                    <p class="text-xs text-muted">{{ product.category?.name }} · {{ formatCurrency(product.price) }}</p>
+                    <p class="text-xs text-muted">{{ product.categories.map(category => category.name).join(', ') || '—' }} · {{ formatCurrency(product.price) }}</p>
                 </div>
             </div>
             <div v-else/>
@@ -46,7 +46,7 @@ const { data: product } = await useAsyncData(
     `recipe-product-${route.params.id}`,
     () => $fetch<IResponse & { response: Product }>(`/products/${route.params.id}`, {
         baseURL: baseUrl,
-        headers: { authorization: token ?? '' },
+        headers: { authorization: token.value ?? '' },
     }),
     {
         transform: (data: IResponse & { response: Product }) => data.response

@@ -52,7 +52,7 @@ const { baseUrl, token } = useAPI()
 const { data: ingredients } = await useLazyFetch('/ingredients', {
     key: 'ingredients-for-po',
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<Ingredient>) => data.response.rows,
 })
 

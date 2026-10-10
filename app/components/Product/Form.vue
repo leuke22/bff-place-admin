@@ -26,8 +26,11 @@
                 <p class="mt-1">${{ Number(product?.price ?? 0).toFixed(2) }}</p>
             </div>
             <div>
-                <p class="text-xs uppercase text-muted tracking-wide">Category</p>
-                <UBadge class="mt-1" :label="categoryLabel" variant="subtle"/>
+                <p class="text-xs uppercase text-muted tracking-wide">Categories</p>
+                <div class="mt-1 flex flex-wrap gap-1">
+                    <UBadge v-for="category in productCategories" :key="category.id" :label="category.name" variant="subtle"/>
+                    <span v-if="!productCategories.length" class="text-sm">—</span>
+                </div>
             </div>
         </div>
     </div>
@@ -50,11 +53,14 @@
             </div>
         </UFormField>
 
-        <UFormField label="Category" name="category_id" required>
-            <USelect
-                v-model="state.category_id"
+        <UFormField label="Categories" name="category_ids" required>
+            <USelectMenu
+                v-model="state.category_ids"
                 :items="categoryItems"
-                placeholder="Select a category"
+                multiple
+                value-key="value"
+                label-key="label"
+                placeholder="Select one or more categories"
                 class="w-full"
             />
         </UFormField>
@@ -142,7 +148,7 @@ watch(file, (newFile, oldFile) => {
 const { data: categoryItems } = await useLazyFetch('/categories', {
     key: 'categories-select', 
     baseURL: baseUrl,
-    headers: { authorization: token ?? '' },
+    headers: { authorization: token.value ?? '' },
     transform: (data: IListResponse<Category>) => {
         return data.response.rows.map(category => ({
             value: category.id,
@@ -151,14 +157,12 @@ const { data: categoryItems } = await useLazyFetch('/categories', {
     }
 })
 
-// Used only in view mode, to turn product.category_id back into a readable label
-// using the same categories list the form's select already fetches.
-const categoryLabel = computed(() => {
-    return categoryItems.value?.find(c => c.value === props.product?.category_id)?.label ?? '—'
+const productCategories = computed(() => {
+    return props.product?.categories ?? []
 })
 
 const schema = z.object({
-    category_id: z.number({ error: 'Category is required' }),
+    category_ids: z.array(z.number()).min(1, 'Select at least one category'),
     name: z.string().min(1, 'Name is required').max(150, 'Max 150 characters'),
     description: z.string().optional(),
     price: z.coerce.number({ error: 'Price is required' }).positive('Price must be greater than 0'),
@@ -168,7 +172,7 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
-    category_id: props.product?.category_id,
+    category_ids: props.product?.categories?.map(category => category.id) ?? [],
     name: props.product?.name ?? '',
     description: props.product?.description ?? '',
     price: props.product?.price ? Number(props.product.price) : undefined,
@@ -178,7 +182,7 @@ const state = reactive<Partial<Schema>>({
 // keep the form in sync when the product prop changes (e.g. moving between view/edit)
 watch(() => props.product, (p) => {
     if (!p) return
-    state.category_id = p.category_id
+    state.category_ids = p.categories?.map(category => category.id) ?? []
     state.name = p.name
     state.description = p.description ?? ''
     state.price = Number(p.price)
@@ -217,13 +221,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             ? await $fetch<IResponse & { response: Product }>(`/products/${props.product.id}`, {
                 baseURL: baseUrl,
                 method: 'PUT',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body,
             })
             : await $fetch<IResponse & { response: Product }>('/products', {
                 baseURL: baseUrl,
                 method: 'POST',
-                headers: { authorization: token ?? '' },
+                headers: { authorization: token.value ?? '' },
                 body,
             })
 
