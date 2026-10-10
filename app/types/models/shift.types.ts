@@ -35,3 +35,12 @@ export interface ShiftPayment {
 export interface ShiftDetail extends ShiftWithSummary {
     payments: ShiftPayment[]
 }
+export type ShiftStatusFilter = 'all' | 'open' | 'balanced' | 'variance'
+
+export interface ShiftListStats {
+    total_shifts: number
+    open_shifts: number
+    total_expected: string
+    total_variance: string
+    variance_shifts: number
+}
