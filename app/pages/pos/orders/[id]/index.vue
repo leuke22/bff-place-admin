@@ -22,7 +22,10 @@
                         <p class="text-xs uppercase text-muted tracking-wide">Order Number</p>
                         <p class="text-lg font-semibold">{{ order.order_number }}</p>
                     </div>
-                    <OrderStatusBadge :status="order.status"/>
+                    <div class="flex flex-row items-center gap-1.5">
+                        <UBadge v-if="order.payments?.length" label="Paid" color="success" variant="subtle"/>
+                        <OrderStatusBadge :status="order.status"/>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-6 text-sm">
@@ -40,7 +43,7 @@
                     </div>
                 </div>
 
-                <div v-if="nextOrderAction(order.status) || canCancelOrder(order.status) || canPayOrder(order.status)" class="flex flex-row justify-end gap-2 pt-2 border-t border-default">
+                <div v-if="nextOrderAction(order.status) || canCancelOrder(order.status)" class="flex flex-row justify-end gap-2 pt-2 border-t border-default">
                     <UButton
                         v-if="canCancelOrder(order.status)"
                         label="Cancel Order"
@@ -56,13 +59,6 @@
                         variant="outline"
                         :loading="updatingUuid === order.uuid"
                         @click="onAdvance"
-                    />
-                    <UButton
-                        v-if="canPayOrder(order.status)"
-                        label="Take Payment"
-                        icon="lucide:banknote"
-                        color="success"
-                        @click="paymentModalOpen = true"
                     />
                 </div>
             </div>
@@ -122,12 +118,6 @@
                 Order not found.
             </div>
         </div>
-
-        <UModal v-model:open="paymentModalOpen" title="Take Payment" :description="order ? `Order ${order.order_number}` : ''">
-            <template #body>
-                <OrderPaymentModal v-if="order" :order="order" @success="onPaid" @cancel="paymentModalOpen = false"/>
-            </template>
-        </UModal>
     </div>
 </template>
 
@@ -160,16 +150,6 @@ const items = computed<BreadcrumbItem[]>(() => [
     { label: 'Orders', to: '/pos/orders' },
     { label: order.value?.order_number ?? 'Order', to: route.fullPath }
 ])
-
-const paymentModalOpen = ref(false)
-
-async function onPaid() {
-    paymentModalOpen.value = false
-    const paidOrder = order.value
-    if (!paidOrder) return
-    await refresh()
-    await navigateTo({ path: `/pos/orders/${paidOrder.uuid}/print`, query: { auto: '1' } })
-}
 
 async function onAdvance() {
     if (!order.value) return

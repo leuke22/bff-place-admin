@@ -134,16 +134,65 @@
                     </div>
                 </div>
 
+                <div class="space-y-2">
+                    <p class="text-sm font-medium">Payment</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <UTooltip
+                            v-for="option in paymentOptions"
+                            :key="option.value"
+                            :text="option.available ? undefined : 'Coming soon'"
+                            :disabled="option.available"
+                        >
+                            <UButton
+                                :label="option.label"
+                                :icon="option.icon"
+                                color="neutral"
+                                size="sm"
+                                block
+                                :variant="paymentMethod === option.value ? 'solid' : 'outline'"
+                                :disabled="!option.available"
+                                @click="paymentMethod = option.value"
+                            >
+                                <template v-if="!option.available" #trailing>
+                                    <UBadge label="Soon" size="sm" color="neutral" variant="subtle"/>
+                                </template>
+                            </UButton>
+                        </UTooltip>
+                    </div>
+
+                    <UInput v-model.number="amountTendered" type="number" min="0" step="0.01" size="sm" placeholder="Amount tendered" class="w-full" :disabled="!items.length">
+                        <template #leading>
+                            <span class="text-muted text-sm">₱</span>
+                        </template>
+                    </UInput>
+                    <div v-if="items.length" class="flex flex-row gap-2 flex-wrap">
+                        <UButton
+                            v-for="preset in quickAmounts"
+                            :key="preset"
+                            :label="formatCurrency(preset)"
+                            size="xs"
+                            variant="outline"
+                            color="neutral"
+                            @click="amountTendered = preset"
+                        />
+                    </div>
+                    <div class="flex justify-between items-center text-sm rounded-md px-3 py-2" :class="isPaid ? 'bg-success/10 text-success' : 'bg-muted text-muted'">
+                        <span>{{ isPaid ? 'Paid' : 'Awaiting payment' }}</span>
+                        <span class="font-semibold">Change: {{ isPaid ? formatCurrency(change) : '—' }}</span>
+                    </div>
+                </div>
+
                 <UButton
                     label="Place Order"
                     icon="lucide:check"
                     size="lg"
                     block
                     :loading="placing"
-                    :disabled="!items.length || discountTooHigh || !shift"
+                    :disabled="!items.length || discountTooHigh || !shift || !isPaid"
                     @click="onPlaceOrder"
                 />
                 <p v-if="!shift" class="text-xs text-error text-center">Open a shift above before taking orders.</p>
+                <p v-else-if="items.length && !isPaid" class="text-xs text-muted text-center">Enter the amount tendered to enable Place Order.</p>
             </div>
         </div>
     </div>
@@ -152,6 +201,7 @@
 <script setup lang="ts">
 import type { Category } from '~/types/models/category.types'
 import type { Order } from '~/types/models/order.types'
+import type { PaymentMethod } from '~/types/models/payment.types'
 import type { Product } from '~/types/models/product.types'
 import type { IListResponse, IResponse } from '~/types/response'
 
@@ -164,7 +214,8 @@ const { baseUrl, token } = useAPI()
 const toast = useToast()
 
 const {
-    items, orderType, discount, discountAmount, subtotal, total, count, discountTooHigh,
+    items, orderType, discount, paymentMethod, amountTendered, discountAmount, subtotal, total, count, discountTooHigh,
+    tendered, isPaid, change,
     quantityOf, add, increment, decrement, remove, setNotes, clear,
 } = usePosCart()
 
@@ -219,10 +270,25 @@ const filteredProducts = computed(() => {
     return list
 })
 
+const paymentOptions: { value: PaymentMethod; label: string; icon: string; available: boolean }[] = [
+    { value: 'cash', label: 'Cash', icon: 'lucide:banknote', available: true },
+    { value: 'gcash', label: 'GCash', icon: 'lucide:smartphone', available: false },
+    { value: 'card', label: 'Card', icon: 'lucide:credit-card', available: false },
+    { value: 'bank_transfer', label: 'Bank Transfer', icon: 'lucide:landmark', available: false },
+]
+
+// Rounds up to the nearest ₱50 above the total, then a couple of common bill combos above that
+const quickAmounts = computed(() => {
+    const exact = total.value
+    if (exact <= 0) return []
+    const rounded = Math.ceil(exact / 50) * 50
+    return [...new Set([exact, rounded, rounded + 50, rounded + 100])].sort((a, b) => a - b).slice(0, 4)
+})
+
 const placing = ref(false)
 
 async function onPlaceOrder() {
-    if (!items.value.length || discountTooHigh.value) return
+    if (!items.value.length || discountTooHigh.value || !isPaid.value) return
 
     placing.value = true
     try {
@@ -238,6 +304,10 @@ async function onPlaceOrder() {
                     quantity: item.quantity,
                     notes: item.notes.trim() || undefined,
                 })),
+                payment: {
+                    method: paymentMethod.value,
+                    amount_tendered: tendered.value,
+                },
             },
         })
 
@@ -245,8 +315,14 @@ async function onPlaceOrder() {
             throw new Error(response.errorMessage || response.errorDescription || 'Failed to place order')
         }
 
-        toast.add({ title: `Order ${response.response.order_number} placed`, color: 'success' })
+        toast.add({
+            title: `Order ${response.response.order_number} placed`,
+            description: `Paid · Change: ${formatCurrency(change.value)}`,
+            color: 'success'
+        })
+        const placedUuid = response.response.uuid
         clear()
+        await navigateTo({ path: `/pos/orders/${placedUuid}/print`, query: { auto: '1' } })
     } catch (error: any) {
         toast.add({
             title: 'Error placing order',

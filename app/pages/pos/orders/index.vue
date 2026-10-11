@@ -42,7 +42,10 @@
                             <span>{{ formatDate(order.created_at, 'time') }}</span>
                         </div>
                     </div>
-                    <OrderStatusBadge :status="order.status"/>
+                    <div class="flex flex-row items-center gap-1.5">
+                        <UBadge v-if="order.payments?.length" label="Paid" color="success" variant="subtle"/>
+                        <OrderStatusBadge :status="order.status"/>
+                    </div>
                 </div>
 
                 <!-- Collapsed: quick summary -->
@@ -82,14 +85,6 @@
                             :loading="updatingUuid === order.uuid"
                             @click="onAdvance(order)"
                         />
-                        <UButton
-                            v-if="canPayOrder(order.status)"
-                            label="Pay"
-                            icon="lucide:banknote"
-                            color="success"
-                            size="sm"
-                            @click="openPayment(order)"
-                        />
                     </div>
                 </div>
             </div>
@@ -98,12 +93,6 @@
         <div v-else class="rounded-lg border border-default p-10 text-center text-muted">
             No orders found.
         </div>
-
-        <UModal v-model:open="paymentModalOpen" title="Take Payment" :description="payingOrder ? `Order ${payingOrder.order_number}` : ''">
-            <template #body>
-                <OrderPaymentModal v-if="payingOrder" :order="payingOrder" @success="onPaid" @cancel="paymentModalOpen = false"/>
-            </template>
-        </UModal>
     </div>
 </template>
 
@@ -139,8 +128,6 @@ const tabs: { value: Tab; label: string }[] = [
 const activeTab = ref<Tab>('active')
 const expandedUuid = ref<string | null>(null)
 
-const paymentModalOpen = ref(false)
-const payingOrder = ref<Order | null>(null)
 
 const { data: orders, refresh, status } = useAsyncData(
     'pos-orders',
@@ -180,16 +167,6 @@ async function onAdvance(order: Order) {
 async function onCancel(order: Order) {
     if (!confirm(`Cancel order ${order.order_number}?`)) return
     if (await updateStatus(order, 'cancelled')) refresh()
-}
-
-function openPayment(order: Order) {
-    payingOrder.value = order
-    paymentModalOpen.value = true
-}
-
-function onPaid() {
-    paymentModalOpen.value = false
-    refresh()
 }
 
 // Keep the list fresh without anyone having to hit refresh
