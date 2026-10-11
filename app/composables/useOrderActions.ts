@@ -17,11 +17,6 @@ export function canCancelOrder(status: OrderStatus) {
     return status === 'pending' || status === 'preparing' || status === 'ready'
 }
 
-// Only a freshly-placed order can be paid — payment is what kicks off preparing.
-export function canPayOrder(status: OrderStatus) {
-    return status === 'pending'
-}
-
 export function orderTypeLabel(type: OrderType) {
     return type === 'dine_in' ? 'Dine-in' : 'Takeout'
 }
