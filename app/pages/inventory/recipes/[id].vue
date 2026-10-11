@@ -11,7 +11,23 @@
                 </div>
                 <div>
                     <p class="font-medium">{{ product.name }}</p>
-                    <p class="text-xs text-muted">{{ product.categories.map(category => category.name).join(', ') || '—' }} · {{ formatCurrency(product.price) }}</p>
+                    <div class="flex flex-wrap items-center gap-1 text-xs text-muted">
+                        <template v-if="product.categories.length">
+                            <UBadge
+                                v-for="category in product.categories"
+                                :key="category.id"
+                                :label="category.name"
+                                variant="subtle"
+                                :style="{ backgroundColor: category.color, color: 'white' }"
+                            >
+                                <template #leading>
+                                    <UIcon :name="category.icon" class="size-3" />
+                                </template>
+                            </UBadge>
+                        </template>
+                        <span v-else>—</span>
+                        <span>· {{ formatCurrency(product.price) }}</span>
+                    </div>
                 </div>
             </div>
             <div v-else/>

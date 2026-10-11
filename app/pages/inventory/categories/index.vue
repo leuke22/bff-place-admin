@@ -27,7 +27,11 @@
                     />
                 </template>
                 <template #grid-footer>
-                    <div class="flex flex-row justify-end">
+                    <div class="flex flex-row items-center justify-end gap-4">
+                        <div class="flex items-center gap-2 text-sm text-muted">
+                            <span>Rows per page</span>
+                            <USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" />
+                        </div>
                         <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                     </div>
                 </template>
@@ -89,7 +93,11 @@
                             </template>
                         </UTable>
 
-                        <div class="flex justify-end border-t border-default pt-4 px-4">
+                        <div class="flex items-center justify-end gap-4 border-t border-default pt-4 px-4">
+                            <div class="flex items-center gap-2 text-sm text-muted">
+                                <span>Rows per page</span>
+                                <USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" />
+                            </div>
                             <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                         </div>
                     </div>
@@ -127,6 +135,8 @@ const pagination: Pagination = reactive({
     total: 0
 })
 
+const pageSizeOptions = [6, 8, 12, 24, 48]
+
 // Local filter shape — add a CategoryFilter type alongside ProductFilter in
 // ~/types/component if you'd rather keep this typed there instead.
 const filter = reactive({
@@ -163,7 +173,7 @@ const { data: categories, refresh, status } = useAsyncData(
     'categories-list-product-count',
     () => fetchCategories(),
     {
-        watch: [() => pagination.page, () => filter.search, () => filter.status],
+        watch: [() => pagination.page, () => pagination.limit, () => filter.search, () => filter.status],
         transform: (data: IListResponse<CategoryProductCount>) => {
             pagination.total = data.response.count
             return data.response.rows
@@ -199,6 +209,10 @@ async function onDelete(category: CategoryProductCount) {
 }
 
 watch([() => filter.search, () => filter.status], () => {
+    pagination.page = 1
+})
+
+watch(() => pagination.limit, () => {
     pagination.page = 1
 })
 

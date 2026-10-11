@@ -20,7 +20,11 @@
                         :label="category.name"
                         variant="subtle"
                         :style="{ backgroundColor: category.color, color: 'white' }"
-                    />
+                    >
+                        <template #leading>
+                            <UIcon :name="category.icon" class="size-3" />
+                        </template>
+                    </UBadge>
                 </div>
                 <UDropdownMenu :items="cardItems">
                     <UButton icon="lucide:more-horizontal" variant="ghost"/>

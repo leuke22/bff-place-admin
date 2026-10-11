@@ -19,7 +19,7 @@
                 </template>
                 <template #grid-item>
                     <IngredientCard
-                        v-for="ingredient in filteredIngredients"
+                        v-for="ingredient in pagedIngredients"
                         :key="ingredient.uuid"
                         :ingredient
                         @view="onView"
@@ -28,8 +28,9 @@
                     />
                 </template>
                 <template #grid-footer>
-                    <div class="flex flex-row justify-end">
-                        <UPagination v-model:page="pagination.page" :sibling-count="2" :total="pagination.total"/>
+                    <div class="flex flex-row items-center justify-end gap-4">
+                        <div class="flex items-center gap-2 text-sm text-muted"><span>Rows per page</span><USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" /></div>
+                        <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="filteredIngredients.length"/>
                     </div>
                 </template>
                 <template #table>
@@ -42,7 +43,7 @@
                             </PageViewFilter>
                         </div>
 
-                        <UTable ref="table" :data="filteredIngredients" :columns="ingredientColumn">
+                        <UTable ref="table" :data="pagedIngredients" :columns="ingredientColumn">
                             <template #ingredient-cell="{ row }">
                                 <div>
                                     <h1 class="text-lg font-semibold">{{ row.original.name }}</h1>
@@ -77,8 +78,9 @@
                             </template>
                         </UTable>
 
-                        <div class="flex justify-end border-t border-default pt-4 px-4">
-                            <UPagination v-model:page="pagination.page" :sibling-count="2" :total="pagination.total"/>
+                        <div class="flex items-center justify-end gap-4 border-t border-default pt-4 px-4">
+                            <div class="flex items-center gap-2 text-sm text-muted"><span>Rows per page</span><USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" /></div>
+                            <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="filteredIngredients.length"/>
                         </div>
                     </div>
                 </template>
@@ -114,6 +116,7 @@ const pagination: Pagination = reactive({
     limit: 8,
     total: 0
 })
+const pageSizeOptions = [6, 8, 12, 24, 48]
 
 const filter = reactive({
     search: '',
@@ -172,6 +175,15 @@ const filteredIngredients = computed(() => {
     }
 
     return list
+})
+
+const pagedIngredients = computed(() => {
+    const start = (pagination.page - 1) * pagination.limit
+    return filteredIngredients.value.slice(start, start + pagination.limit)
+})
+
+watch([() => filter.search, () => filter.status, () => pagination.limit], () => {
+    pagination.page = 1
 })
 
 function onView(ingredient: Ingredient) {

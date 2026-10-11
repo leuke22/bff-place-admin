@@ -23,12 +23,22 @@
         <div class="grid grid-cols-2 gap-6">
             <div>
                 <p class="text-xs uppercase text-muted tracking-wide">Price</p>
-                <p class="mt-1">${{ Number(product?.price ?? 0).toFixed(2) }}</p>
+                <p class="mt-1">{{ formatCurrency(product?.price) }}</p>
             </div>
             <div>
                 <p class="text-xs uppercase text-muted tracking-wide">Categories</p>
                 <div class="mt-1 flex flex-wrap gap-1">
-                    <UBadge v-for="category in productCategories" :key="category.id" :label="category.name" variant="subtle"/>
+                    <UBadge
+                        v-for="category in productCategories"
+                        :key="category.id"
+                        :label="category.name"
+                        variant="subtle"
+                        :style="{ backgroundColor: category.color, color: 'white' }"
+                    >
+                        <template #leading>
+                            <UIcon :name="category.icon" class="size-3" />
+                        </template>
+                    </UBadge>
                     <span v-if="!productCategories.length" class="text-sm">—</span>
                 </div>
             </div>
@@ -62,7 +72,38 @@
                 label-key="label"
                 placeholder="Select one or more categories"
                 class="w-full"
-            />
+            >
+                <template #default>
+                    <div class="flex min-w-0 flex-1 flex-wrap items-center gap-1 py-1">
+                        <UBadge
+                            v-for="category in selectedCategoryItems"
+                            :key="category.value"
+                            :label="category.label"
+                            variant="subtle"
+                            :style="{ backgroundColor: category.color, color: 'white' }"
+                        >
+                            <template #leading>
+                                <UIcon :name="category.icon" class="size-3" />
+                            </template>
+                            <template #trailing>
+                                <UIcon
+                                    name="lucide:x"
+                                    class="size-3 cursor-pointer"
+                                    role="button"
+                                    tabindex="0"
+                                    :aria-label="`Remove ${category.label}`"
+                                    @click.stop="removeCategory(category.value)"
+                                    @keydown.stop.enter.prevent="removeCategory(category.value)"
+                                    @keydown.stop.space.prevent="removeCategory(category.value)"
+                                />
+                            </template>
+                        </UBadge>
+                        <span v-if="!selectedCategoryItems.length" class="text-muted">
+                            Select one or more categories
+                        </span>
+                    </div>
+                </template>
+            </USelectMenu>
         </UFormField>
 
         <UFormField label="Name" name="name" required>
@@ -80,7 +121,7 @@
         <UFormField label="Price" name="price" required>
             <UInput v-model="state.price" type="number" step="0.01" placeholder="0.00" class="w-full">
                 <template #leading>
-                    <span class="text-muted">$</span>
+                    <span class="text-muted">₱</span>
                 </template>
             </UInput>
         </UFormField>
@@ -152,7 +193,9 @@ const { data: categoryItems } = await useLazyFetch('/categories', {
     transform: (data: IListResponse<Category>) => {
         return data.response.rows.map(category => ({
             value: category.id,
-            label: category.name
+            label: category.name,
+            icon: category.icon,
+            color: category.color,
         }))
     }
 })
@@ -160,6 +203,15 @@ const { data: categoryItems } = await useLazyFetch('/categories', {
 const productCategories = computed(() => {
     return props.product?.categories ?? []
 })
+
+const selectedCategoryItems = computed(() => {
+    const selectedIds = state.category_ids ?? []
+    return (categoryItems.value ?? []).filter(category => selectedIds.includes(category.value))
+})
+
+function removeCategory(categoryId: number) {
+    state.category_ids = (state.category_ids ?? []).filter(id => id !== categoryId)
+}
 
 const schema = z.object({
     category_ids: z.array(z.number()).min(1, 'Select at least one category'),

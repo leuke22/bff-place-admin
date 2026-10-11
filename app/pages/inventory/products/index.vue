@@ -20,8 +20,9 @@
                     <ProductCard v-for="product in products" :key="product.uuid" :product/>
                 </template>
                 <template #grid-footer>
-                    <div class="flex flex-row justify-end">
-                        <UPagination v-model:page="pagination.page" :sibling-count="2" :total="pagination.total"/>
+                    <div class="flex flex-row items-center justify-end gap-4">
+                        <div class="flex items-center gap-2 text-sm text-muted"><span>Rows per page</span><USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" /></div>
+                        <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                     </div>
                 </template>
                 <template #table>
@@ -52,9 +53,13 @@
                                         v-for="category in row.original.categories"
                                         :key="category.id"
                                         :label="category.name"
-                                        color="secondary"
                                         variant="subtle"
-                                    />
+                                        :style="{ backgroundColor: category.color, color: 'white' }"
+                                    >
+                                        <template #leading>
+                                            <UIcon :name="category.icon" class="size-3" />
+                                        </template>
+                                    </UBadge>
                                 </div>
                             </template>
                             <template #price-cell="{ row }">
@@ -82,8 +87,9 @@
                             </template>
                         </UTable>
 
-                        <div class="flex justify-end border-t border-default pt-4 px-4">
-                            <UPagination v-model:page="pagination.page" :sibling-count="2" :total="pagination.total"/>
+                        <div class="flex items-center justify-end gap-4 border-t border-default pt-4 px-4">
+                            <div class="flex items-center gap-2 text-sm text-muted"><span>Rows per page</span><USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" /></div>
+                            <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                         </div>
                     </div>
                 </template>
@@ -118,6 +124,7 @@ const pagination: Pagination = reactive({
     limit: 8,
     total: 0
 })
+const pageSizeOptions = [6, 8, 12, 24, 48]
 
 const filter: ProductFilter = reactive({
     search: '',
@@ -137,8 +144,8 @@ const fetchProducts = () => $fetch<IListResponse<Product>>('/products', {
     baseURL: baseUrl,
     headers: { authorization: token.value ?? '' },
     query: {
-        page: 1,
-        limit: 10,
+        page: pagination.page,
+        limit: pagination.limit,
     }
 });
 
@@ -146,6 +153,7 @@ const { data: products, refresh } = useAsyncData(
     'products-list',
     () => fetchProducts(),
     {
+        watch: [() => pagination.page, () => pagination.limit],
         transform: (data: IListResponse<Product>) => {
             pagination.total = data.response.count
             return data.response.rows
@@ -167,5 +175,9 @@ const { data: categories } = await useLazyFetch('/categories', {
             }))
         ]
     }
+})
+
+watch(() => pagination.limit, () => {
+    pagination.page = 1
 })
 </script>

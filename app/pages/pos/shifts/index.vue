@@ -34,12 +34,18 @@
         <!-- Filters -->
         <div class="flex flex-row flex-wrap items-end gap-3 mb-4">
             <UInput v-model="filter.search" icon="i-lucide-search" placeholder="Search cashier or shift #" class="w-full sm:w-64"/>
-            <UFormField label="From" size="sm">
-                <UInput v-model="filter.date_from" type="date" :max="filter.date_to || undefined"/>
-            </UFormField>
-            <UFormField label="To" size="sm">
-                <UInput v-model="filter.date_to" type="date" :min="filter.date_from || undefined"/>
-            </UFormField>
+            <UPopover v-model:open="calendarOpen">
+                <UButton
+                    icon="lucide:calendar-days"
+                    :label="dateRangeLabel"
+                    variant="outline"
+                    color="neutral"
+                    trailing-icon="lucide:chevron-down"
+                />
+                <template #content>
+                    <UCalendar v-model="dateRange" range :number-of-months="2" class="p-2" />
+                </template>
+            </UPopover>
             <UFormField label="Cashier" size="sm">
                 <USelectMenu v-model="filter.cashier_id" :items="cashierOptions" value-key="value" label-key="label" class="w-48"/>
             </UFormField>
@@ -95,7 +101,8 @@
                 </NuxtLink>
             </template>
             <template #grid-footer>
-                <div class="flex flex-row justify-end">
+                <div class="flex flex-row items-center justify-end gap-4">
+                    <div class="flex items-center gap-2 text-sm text-muted"><span>Rows per page</span><USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" /></div>
                     <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                 </div>
             </template>
@@ -122,7 +129,8 @@
                             </UTooltip>
                         </template>
                     </UTable>
-                    <div class="flex justify-end border-t border-default pt-4 px-4">
+                    <div class="flex items-center justify-end gap-4 border-t border-default pt-4 px-4">
+                        <div class="flex items-center gap-2 text-sm text-muted"><span>Rows per page</span><USelect v-model="pagination.limit" :items="pageSizeOptions" class="w-20" aria-label="Rows per page" /></div>
                         <UPagination v-model:page="pagination.page" :items-per-page="pagination.limit" :sibling-count="2" :total="pagination.total"/>
                     </div>
                 </div>
@@ -132,7 +140,9 @@
 </template>
 
 <script setup lang="ts">
+import { parseDate } from '@internationalized/date'
 import type { BreadcrumbItem, TableColumn } from '@nuxt/ui'
+import type { DateRange } from 'reka-ui'
 import type { Pagination, ValueType } from '~/types/component'
 import type { Shift, ShiftListStats, ShiftStatusFilter } from '~/types/models/shift.types'
 import type { IListResponse } from '~/types/response'
@@ -157,6 +167,7 @@ if (authData.value?.role === 'cashier') {
 const view = ref<ValueType>('grid')
 
 const pagination: Pagination = reactive({ page: 1, limit: 12, total: 0 })
+const pageSizeOptions = [6, 8, 12, 24, 48]
 
 const filter = reactive({
     search: '',
@@ -164,6 +175,27 @@ const filter = reactive({
     date_to: '',
     cashier_id: 0,
     status: 'all' as ShiftStatusFilter
+})
+
+const calendarOpen = ref(false)
+const dateRange = computed<DateRange | null>({
+    get: () => ({
+        start: filter.date_from ? parseDate(filter.date_from) : undefined,
+        end: filter.date_to ? parseDate(filter.date_to) : undefined,
+    }),
+    set: (range) => {
+        filter.date_from = range?.start?.toString() ?? ''
+        filter.date_to = range?.end?.toString() ?? ''
+        if (range?.start && range.end) calendarOpen.value = false
+    }
+})
+const dateRangeLabel = computed(() => {
+    if (!filter.date_from && !filter.date_to) return 'Select dates'
+    const formatDateLabel = (value: string) => new Intl.DateTimeFormat(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
+    }).format(parseDate(value).toDate('UTC'))
+    if (filter.date_from && filter.date_to) return `${formatDateLabel(filter.date_from)} – ${formatDateLabel(filter.date_to)}`
+    return filter.date_from ? `From ${formatDateLabel(filter.date_from)}` : `Through ${formatDateLabel(filter.date_to)}`
 })
 
 const statusOptions = [
@@ -241,6 +273,10 @@ watch(() => [filter.search, filter.date_from, filter.date_to, filter.cashier_id,
     }, 300)
 })
 watch(() => pagination.page, () => refresh())
+watch(() => pagination.limit, () => {
+    if (pagination.page !== 1) pagination.page = 1
+    else refresh()
+})
 onBeforeUnmount(() => clearTimeout(timer))
 
 const hasFilters = computed(() => !!(filter.search || filter.date_from || filter.date_to || filter.cashier_id || filter.status !== 'all'))
