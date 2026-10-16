@@ -1,5 +1,6 @@
 import type { Product } from '~/types/models/product.types'
 import type { PaymentMethod } from '~/types/models/payment.types'
+import type { Discount } from '~/types/models/discount.types'
 import type { OrderType } from '~/types/models/order.types'
 
 export interface CartItem {
@@ -14,18 +15,22 @@ export interface CartItem {
 export function usePosCart() {
     const items = useState<CartItem[]>('pos-cart-items', () => [])
     const orderType = useState<OrderType>('pos-cart-order-type', () => 'dine_in')
-    // string allowed because an emptied number input yields ''
-    const discount = useState<number | string>('pos-cart-discount', () => 0)
+    const appliedDiscount = useState<Discount | null>('pos-cart-discount', () => null)
 
     const paymentMethod = useState<PaymentMethod>('pos-cart-payment-method', () => 'cash')
     // string allowed because an emptied number input yields ''
     const amountTendered = useState<number | string>('pos-cart-amount-tendered', () => '')
 
-    const discountAmount = computed(() => Math.max(0, Number(discount.value) || 0))
     const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.unit_price * i.quantity, 0))
+    // Percent discounts follow the cart as it changes; a fixed discount can never exceed the subtotal.
+    const discountAmount = computed(() => {
+        const discount = appliedDiscount.value
+        if (!discount) return 0
+        const raw = discount.type === 'percent' ? subtotal.value * Number(discount.value) / 100 : Number(discount.value)
+        return Math.min(Math.round(raw * 100) / 100, subtotal.value)
+    })
     const total = computed(() => Math.max(0, subtotal.value - discountAmount.value))
     const count = computed(() => items.value.reduce((sum, i) => sum + i.quantity, 0))
-    const discountTooHigh = computed(() => discountAmount.value > subtotal.value)
 
     const tendered = computed(() => Number(amountTendered.value) || 0)
     // Payment-first: the order can only be placed once the tendered amount covers the total.
@@ -75,14 +80,15 @@ export function usePosCart() {
 
     function clear() {
         items.value = []
-        discount.value = 0
+        appliedDiscount.value = null
+        orderType.value = 'dine_in'
+        paymentMethod.value = 'cash'
         amountTendered.value = ''
     }
 
     return {
-        items, orderType, discount, paymentMethod, amountTendered,
-        discountAmount, subtotal, total, count, discountTooHigh,
-        tendered, isPaid, change,
+        items, orderType, appliedDiscount, paymentMethod, amountTendered,
+        discountAmount, subtotal, total, count, tendered, isPaid, change,
         quantityOf, add, increment, decrement, remove, setNotes, clear,
     }
 }

@@ -2,6 +2,8 @@
     <div class="space-y-6">
         <PageHeader title="Settings" description="Manage staff accounts and roles" :items :has-view="false"/>
 
+        <SettingsNav/>
+
         <div class="flex flex-row justify-between items-center">
             <h2 class="text-lg font-semibold">Staff Management</h2>
             <div class="flex flex-row gap-3">

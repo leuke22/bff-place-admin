@@ -7,24 +7,36 @@
                 <UButton icon="lucide:refresh-ccw" variant="outline" color="neutral" :loading="status === 'pending'" @click="refresh()"/>
             </div>
 
-            <div class="flex flex-row gap-2 overflow-x-auto pb-1">
-                <UButton
-                    label="All"
-                    color="neutral"
-                    class="shrink-0"
-                    :variant="selectedCategory === 0 ? 'solid' : 'outline'"
+            <div class="flex flex-row gap-3 overflow-x-auto pb-2">
+                <button
+                    type="button"
+                    class="shrink-0 w-24 flex flex-col items-center gap-1.5 group"
                     @click="selectedCategory = 0"
-                />
-                <UButton
+                >
+                    <span
+                        class="size-20 rounded-lg border-2 flex items-center justify-center bg-muted transition"
+                        :class="selectedCategory === 0 ? 'border-primary' : 'border-transparent group-hover:border-primary/50'"
+                    >
+                        <UIcon name="lucide:layout-grid" class="size-8 text-muted"/>
+                    </span>
+                    <span class="text-xs text-center leading-tight line-clamp-2" :class="selectedCategory === 0 ? 'font-semibold text-primary' : ''">All</span>
+                </button>
+                <button
                     v-for="category in categories"
                     :key="category.id"
-                    :label="category.name"
-                    :icon="category.icon"
-                    color="neutral"
-                    class="shrink-0"
-                    :variant="selectedCategory === category.id ? 'solid' : 'outline'"
+                    type="button"
+                    class="shrink-0 w-24 flex flex-col items-center gap-1.5 group"
                     @click="selectedCategory = category.id"
-                />
+                >
+                    <span
+                        class="size-20 rounded-lg border-2 overflow-hidden flex items-center justify-center bg-muted transition"
+                        :class="selectedCategory === category.id ? 'border-primary' : 'border-transparent group-hover:border-primary/50'"
+                    >
+                        <NuxtImg v-if="category.image" :src="category.image" :alt="category.name" class="size-full object-cover"/>
+                        <UIcon v-else :name="category.icon" class="size-8 text-muted"/>
+                    </span>
+                    <span class="text-xs text-center leading-tight line-clamp-2" :class="selectedCategory === category.id ? 'font-semibold text-primary' : ''">{{ category.name }}</span>
+                </button>
             </div>
 
             <div v-if="filteredProducts.length" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -60,7 +72,15 @@
                     <h2 class="font-semibold">Current Order</h2>
                     <p class="text-xs text-muted">{{ count }} item(s)</p>
                 </div>
-                <UButton v-if="items.length" label="Clear" icon="lucide:trash-2" variant="ghost" color="error" size="sm" @click="clear"/>
+                <UButton
+                    v-if="held.length"
+                    :label="`Held (${held.length})`"
+                    icon="lucide:pause-circle"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    @click="heldOpen = true"
+                />
             </div>
 
             <div class="grid grid-cols-2 gap-2 p-3 border-b border-default">
@@ -109,23 +129,59 @@
             </div>
 
             <div class="border-t border-default p-4 space-y-3">
-                <div class="flex flex-row justify-between items-center gap-3">
-                    <span class="text-sm text-muted">Discount</span>
-                    <UInput v-model.number="discount" type="number" min="0" step="0.01" size="sm" class="w-32">
-                        <template #leading>
-                            <span class="text-muted text-sm">₱</span>
-                        </template>
-                    </UInput>
+                <div class="grid grid-cols-4 gap-2">
+                    <UButton
+                        label="Discount"
+                        icon="lucide:percent"
+                        color="neutral"
+                        variant="outline"
+                        size="sm"
+                        block
+                        :disabled="!items.length"
+                        :ui="{ base: 'flex-col gap-1 py-2' }"
+                        @click="discountOpen = true"
+                    />
+                    <UButton
+                        label="Hold"
+                        icon="lucide:pause-circle"
+                        color="neutral"
+                        variant="outline"
+                        size="sm"
+                        block
+                        :disabled="!items.length"
+                        :ui="{ base: 'flex-col gap-1 py-2' }"
+                        @click="onHold"
+                    />
+                    <UButton
+                        label="Void"
+                        icon="lucide:ban"
+                        color="error"
+                        variant="outline"
+                        size="sm"
+                        block
+                        :ui="{ base: 'flex-col gap-1 py-2' }"
+                        @click="voidOpen = true"
+                    />
+                    <UButton
+                        label="Reset"
+                        icon="lucide:rotate-ccw"
+                        color="neutral"
+                        variant="outline"
+                        size="sm"
+                        block
+                        :disabled="!items.length && !appliedDiscount && !amountTendered"
+                        :ui="{ base: 'flex-col gap-1 py-2' }"
+                        @click="onReset"
+                    />
                 </div>
-                <p v-if="discountTooHigh" class="text-xs text-error">Discount can't be more than the subtotal.</p>
 
                 <div class="space-y-1 text-sm">
                     <div class="flex justify-between text-muted">
                         <span>Subtotal</span>
                         <span>{{ formatCurrency(subtotal) }}</span>
                     </div>
-                    <div v-if="discountAmount" class="flex justify-between text-muted">
-                        <span>Discount</span>
+                    <div v-if="appliedDiscount" class="flex justify-between text-muted">
+                        <span>Discount · {{ appliedDiscount.name }} ({{ discountLabel(appliedDiscount) }})</span>
                         <span>−{{ formatCurrency(discountAmount) }}</span>
                     </div>
                     <div class="flex justify-between text-lg font-semibold">
@@ -188,13 +244,17 @@
                     size="lg"
                     block
                     :loading="placing"
-                    :disabled="!items.length || discountTooHigh || !shift || !isPaid"
+                    :disabled="!items.length || !shift || !isPaid"
                     @click="onPlaceOrder"
                 />
                 <p v-if="!shift" class="text-xs text-error text-center">Open a shift above before taking orders.</p>
                 <p v-else-if="items.length && !isPaid" class="text-xs text-muted text-center">Enter the amount tendered to enable Place Order.</p>
             </div>
         </div>
+
+        <PosDiscountModal v-model:open="discountOpen"/>
+        <PosHeldModal v-model:open="heldOpen"/>
+        <PosVoidModal v-model:open="voidOpen"/>
     </div>
 </template>
 
@@ -214,12 +274,17 @@ const { baseUrl, token } = useAPI()
 const toast = useToast()
 
 const {
-    items, orderType, discount, paymentMethod, amountTendered, discountAmount, subtotal, total, count, discountTooHigh,
+    items, orderType, appliedDiscount, paymentMethod, amountTendered, discountAmount, subtotal, total, count,
     tendered, isPaid, change,
     quantityOf, add, increment, decrement, remove, setNotes, clear,
 } = usePosCart()
 
 const { shift } = useShift()
+const { held, hold } = useHeldOrders()
+
+const discountOpen = ref(false)
+const heldOpen = ref(false)
+const voidOpen = ref(false)
 
 const search = ref('')
 const selectedCategory = ref(0)
@@ -285,10 +350,27 @@ const quickAmounts = computed(() => {
     return [...new Set([exact, rounded, rounded + 50, rounded + 100])].sort((a, b) => a - b).slice(0, 4)
 })
 
+function onHold() {
+    if (!items.value.length) return
+    hold({
+        order_type: orderType.value,
+        items: items.value.map((item) => ({ ...item })),
+        discount: appliedDiscount.value,
+        subtotal: subtotal.value,
+    })
+    clear()
+    toast.add({ title: 'Order held', description: 'Recall it from the Held list.', color: 'success' })
+}
+
+function onReset() {
+    if (items.value.length && !confirm('Reset the current order? Items, discount and payment will be cleared.')) return
+    clear()
+}
+
 const placing = ref(false)
 
 async function onPlaceOrder() {
-    if (!items.value.length || discountTooHigh.value || !isPaid.value) return
+    if (!items.value.length || !isPaid.value) return
 
     placing.value = true
     try {
