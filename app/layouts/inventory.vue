@@ -73,23 +73,29 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
+import { useMediaQuery } from '@vueuse/core'
 
 const open = useSidebar();
 const colorMode = useColorMode();
 const { data, signOut } = useAuth();
 const sidebarOpen = useSidebar();
+const isMobile = useMediaQuery('(max-width: 1023px)')
+
+function closeSidebarOnMobile() {
+    if (isMobile.value) open.value = false
+}
 
 function getItems(state: 'collapsed' | 'expanded') {
     return [
-        { label: 'Dashboard', icon: 'lucide:layout-dashboard', to: '/inventory' },
-        { label: 'Categories', icon: 'lucide:folder-closed', to: '/inventory/categories' },
-        { label: 'Products', icon: 'lucide:box', to: '/inventory/products' },
-        { label: 'Units', icon: 'lucide:ruler', to: '/inventory/units' },
-        { label: 'Ingredients', icon: 'lucide:wheat', to: '/inventory/ingredients' },
-        { label: 'Recipes', icon: 'lucide:chef-hat', to: '/inventory/recipes' },
-        { label: 'Low Stock', icon: 'lucide:triangle-alert', to: '/inventory/low-stock' },
-        { label: 'Suppliers', icon: 'lucide:truck', to: '/inventory/suppliers' },
-        { label: 'Purchase Orders', icon: 'lucide:clipboard-list', to: '/inventory/purchase-orders' }
+        { label: 'Dashboard', icon: 'lucide:layout-dashboard', to: '/inventory', onSelect: closeSidebarOnMobile },
+        { label: 'Categories', icon: 'lucide:folder-closed', to: '/inventory/categories', onSelect: closeSidebarOnMobile },
+        { label: 'Products', icon: 'lucide:box', to: '/inventory/products', onSelect: closeSidebarOnMobile },
+        { label: 'Units', icon: 'lucide:ruler', to: '/inventory/units', onSelect: closeSidebarOnMobile },
+        { label: 'Ingredients', icon: 'lucide:wheat', to: '/inventory/ingredients', onSelect: closeSidebarOnMobile },
+        { label: 'Recipes', icon: 'lucide:chef-hat', to: '/inventory/recipes', onSelect: closeSidebarOnMobile },
+        { label: 'Low Stock', icon: 'lucide:triangle-alert', to: '/inventory/low-stock', onSelect: closeSidebarOnMobile },
+        { label: 'Suppliers', icon: 'lucide:truck', to: '/inventory/suppliers', onSelect: closeSidebarOnMobile },
+        { label: 'Purchase Orders', icon: 'lucide:clipboard-list', to: '/inventory/purchase-orders', onSelect: closeSidebarOnMobile }
     ] satisfies NavigationMenuItem[]
 }
 

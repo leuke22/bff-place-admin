@@ -8,14 +8,14 @@
           you serve faster. keep track Of stock. and your
           business effortlessly.</p>
         <div class="flex flex-row gap-5">
-          <UButton size="xl">
+          <UButton size="xl" @click="navigateTo('/pos')">
             <div class="flex flex-row items-center gap-2">
               <UIcon name="lucide:shopping-cart"/>
               <p>Go to Point of Sales</p>
               <UIcon name="lucide:arrow-right"/>
             </div>
           </UButton>
-          <UButton size="xl" variant="outline">
+          <UButton size="xl" variant="outline" @click="navigateTo('/inventory')">
             <div class="flex flex-row items-center gap-2">
               <UIcon name="lucide:package"/>
               <p>Go to Inventory</p>

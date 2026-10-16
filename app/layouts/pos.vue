@@ -74,19 +74,25 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
+import { useMediaQuery } from '@vueuse/core'
 
 const open = useSidebar();
 const colorMode = useColorMode();
 const { data, signOut } = useAuth();
 const sidebarOpen = useSidebar();
+const isMobile = useMediaQuery('(max-width: 1023px)')
+
+function closeSidebarOnMobile() {
+    if (isMobile.value) open.value = false
+}
 
 const items = computed<NavigationMenuItem[]>(() => {
     const base: NavigationMenuItem[] = [
-        { label: 'New Order', icon: 'lucide:shopping-cart', to: '/pos', exact: true },
-        { label: 'Orders', icon: 'lucide:receipt', to: '/pos/orders' },
+        { label: 'New Order', icon: 'lucide:shopping-cart', to: '/pos', exact: true, onSelect: closeSidebarOnMobile },
+        { label: 'Orders', icon: 'lucide:receipt', to: '/pos/orders', onSelect: closeSidebarOnMobile },
     ]
     if (data.value?.role === 'admin' || data.value?.role === 'manager') {
-        base.push({ label: 'Shift History', icon: 'lucide:history', to: '/pos/shifts' })
+        base.push({ label: 'Shift History', icon: 'lucide:history', to: '/pos/shifts', onSelect: closeSidebarOnMobile })
     }
     return base
 })
